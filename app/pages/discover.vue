@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Descoperă filme — UpNext' })
+useSeoMeta({ title: 'Descoperă — UpNext' })
 
 const STREAMING_PROVIDERS = [
   { label: 'Netflix', value: '8' },
@@ -9,24 +9,50 @@ const STREAMING_PROVIDERS = [
   { label: 'Apple TV+', value: '2' }
 ]
 
-const SORT_OPTIONS = [
+const MOVIE_SORT_OPTIONS = [
   { label: 'Popularitate', value: 'popularity.desc' },
   { label: 'Rating', value: 'vote_average.desc' },
   { label: 'Cele mai noi', value: 'release_date.desc' },
   { label: 'Cele mai vechi', value: 'release_date.asc' }
 ]
 
-interface Genre { id: number, name: string }
-interface MovieItem { id: number, title: string, poster_path: string | null, release_date: string, vote_average: number, overview: string }
-interface MovieListResponse { results: MovieItem[], total_pages: number }
+const TV_SORT_OPTIONS = [
+  { label: 'Popularitate', value: 'popularity.desc' },
+  { label: 'Rating', value: 'vote_average.desc' },
+  { label: 'Cele mai noi', value: 'first_air_date.desc' },
+  { label: 'Cele mai vechi', value: 'first_air_date.asc' }
+]
 
-const { data: genresData } = await useFetch<{ genres: Genre[] }>('/api/movies/genres')
+interface Genre { id: number, name: string }
+interface MediaItem {
+  id: number
+  media_type?: 'movie' | 'tv' | 'person'
+  title?: string
+  name?: string
+  poster_path: string | null
+  release_date?: string
+  first_air_date?: string
+  vote_average: number
+  overview: string
+}
+interface MediaListResponse { results: MediaItem[], total_pages: number }
+
+const mediaType = ref<'movie' | 'tv'>('movie')
+const isMovie = computed(() => mediaType.value === 'movie')
+
+const [{ data: movieGenresData }, { data: tvGenresData }] = await Promise.all([
+  useFetch<{ genres: Genre[] }>('/api/movies/genres'),
+  useFetch<{ genres: Genre[] }>('/api/tv/genres')
+])
+
 const genres = computed(() =>
-  (genresData.value?.genres ?? []).map(g => ({
+  (isMovie.value ? movieGenresData.value?.genres : tvGenresData.value?.genres ?? [])?.map(g => ({
     label: g.name,
     value: String(g.id)
-  }))
+  })) ?? []
 )
+
+const sortOptions = computed(() => isMovie.value ? MOVIE_SORT_OPTIONS : TV_SORT_OPTIONS)
 
 const search = ref('')
 const selectedGenre = ref<string | undefined>(undefined)
@@ -37,25 +63,33 @@ const page = ref(1)
 
 const isSearching = computed(() => search.value.trim().length > 0)
 
-const { data, pending } = await useFetch<MovieListResponse>(() => {
-  if (search.value.trim().length > 0) {
-    return `/api/movies/search?query=${encodeURIComponent(search.value)}&page=${page.value}`
+const { data, pending } = await useFetch<MediaListResponse>(() => {
+  const base = isMovie.value ? '/api/movies' : '/api/tv'
+  if (isSearching.value) {
+    return `${base}/search?query=${encodeURIComponent(search.value)}&page=${page.value}`
   }
-  const params = new URLSearchParams({
-    page: String(page.value),
-    sort_by: selectedSort.value
-  })
+  const params = new URLSearchParams({ page: String(page.value), sort_by: selectedSort.value })
   if (selectedGenre.value) params.set('genre', selectedGenre.value)
-  if (selectedProvider.value) params.set('provider', selectedProvider.value)
   if (selectedYear.value) params.set('year', selectedYear.value)
-  return `/api/movies/discover?${params}`
+  if (isMovie.value && selectedProvider.value) params.set('provider', selectedProvider.value)
+  return `${base}/discover?${params}`
 })
 
-const movies = computed(() => data.value?.results ?? [])
+const results = computed(() => {
+  return (data.value?.results ?? []).map(item => ({
+    ...item,
+    media_type: item.media_type ?? mediaType.value
+  }))
+})
 const totalPages = computed(() => Math.min(data.value?.total_pages ?? 1, 500))
 
-watch([search, selectedGenre, selectedProvider, selectedSort, selectedYear], () => {
+watch([search, selectedGenre, selectedProvider, selectedSort, selectedYear, mediaType], () => {
   page.value = 1
+})
+
+watch(mediaType, () => {
+  selectedGenre.value = undefined
+  selectedSort.value = 'popularity.desc'
 })
 
 const currentYear = new Date().getFullYear()
@@ -68,14 +102,32 @@ const years = Array.from({ length: 40 }, (_, i) => {
 <template>
   <UContainer class="py-8">
     <div class="space-y-6">
-      <h1 class="text-2xl font-bold">
-        Descoperă filme
-      </h1>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">
+          Descoperă
+        </h1>
+        <div class="flex rounded-lg overflow-hidden border border-default">
+          <button
+            class="px-4 py-1.5 text-sm font-medium transition-colors"
+            :class="isMovie ? 'bg-primary text-white' : 'text-muted hover:text-default'"
+            @click="mediaType = 'movie'"
+          >
+            Filme
+          </button>
+          <button
+            class="px-4 py-1.5 text-sm font-medium transition-colors"
+            :class="!isMovie ? 'bg-primary text-white' : 'text-muted hover:text-default'"
+            @click="mediaType = 'tv'"
+          >
+            Seriale
+          </button>
+        </div>
+      </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <UInput
           v-model="search"
-          placeholder="Caută un film..."
+          :placeholder="isMovie ? 'Caută un film...' : 'Caută un serial...'"
           icon="i-lucide-search"
           size="md"
           class="lg:col-span-1"
@@ -90,6 +142,7 @@ const years = Array.from({ length: 40 }, (_, i) => {
         />
 
         <USelect
+          v-if="isMovie"
           v-model="selectedProvider"
           :items="STREAMING_PROVIDERS"
           placeholder="Platformă"
@@ -97,7 +150,10 @@ const years = Array.from({ length: 40 }, (_, i) => {
           :disabled="isSearching"
         />
 
-        <div class="flex gap-2">
+        <div
+          class="flex gap-2"
+          :class="!isMovie ? 'lg:col-start-3' : ''"
+        >
           <USelect
             v-model="selectedYear"
             :items="years"
@@ -109,7 +165,7 @@ const years = Array.from({ length: 40 }, (_, i) => {
 
           <USelect
             v-model="selectedSort"
-            :items="SORT_OPTIONS"
+            :items="sortOptions"
             size="md"
             class="flex-1"
             :disabled="isSearching"
@@ -130,13 +186,13 @@ const years = Array.from({ length: 40 }, (_, i) => {
 
       <template v-else>
         <div
-          v-if="movies.length"
+          v-if="results.length"
           class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
         >
-          <MovieCard
-            v-for="movie in movies"
-            :key="movie.id"
-            :movie="movie"
+          <MediaCard
+            v-for="item in results"
+            :key="item.id"
+            :item="item"
           />
         </div>
 
@@ -148,7 +204,7 @@ const years = Array.from({ length: 40 }, (_, i) => {
             name="i-lucide-film"
             class="size-12 mx-auto mb-3"
           />
-          <p>Niciun film găsit. Încearcă alte filtre.</p>
+          <p>Niciun rezultat găsit. Încearcă alte filtre.</p>
         </div>
 
         <div
