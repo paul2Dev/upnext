@@ -2,6 +2,7 @@
 interface CastMember { id: number, name: string, character: string, profile_path: string | null }
 interface CrewMember { id: number, name: string, job: string }
 interface Video { key: string, site: string, type: string, name: string }
+interface MovieItem { id: number, title: string, poster_path: string | null, release_date: string, vote_average: number, overview: string }
 interface Movie {
   id: number
   title: string
@@ -19,7 +20,12 @@ interface Movie {
 }
 
 const route = useRoute()
-const { data: movie, error } = await useFetch<Movie>(`/api/movies/${route.params.id}`)
+const id = route.params.id
+
+const [{ data: movie, error }, { data: similarData }] = await Promise.all([
+  useFetch<Movie>(`/api/movies/${id}`),
+  useFetch<{ results: MovieItem[] }>(`/api/movies/${id}/similar`)
+])
 
 if (error.value) {
   throw createError({ statusCode: 404, message: 'Film negăsit' })
@@ -42,6 +48,7 @@ const voteCount = computed(() => movie.value?.vote_count?.toLocaleString('ro-RO'
 const director = computed(() => movie.value?.credits?.crew?.find(c => c.job === 'Director')?.name ?? null)
 const trailer = computed(() => movie.value?.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube') ?? null)
 const cast = computed(() => movie.value?.credits?.cast?.slice(0, 8) ?? [])
+const similarMovies = computed(() => similarData.value?.results?.slice(0, 12) ?? [])
 </script>
 
 <template>
@@ -194,6 +201,22 @@ const cast = computed(() => movie.value?.credits?.cast?.slice(0, 8) ?? [])
               {{ actor.character }}
             </p>
           </div>
+        </div>
+      </div>
+
+      <div
+        v-if="similarMovies.length"
+        class="mt-10"
+      >
+        <h2 class="text-lg font-semibold mb-4">
+          Filme similare
+        </h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <MovieCard
+            v-for="similar in similarMovies"
+            :key="similar.id"
+            :movie="similar"
+          />
         </div>
       </div>
     </UContainer>
