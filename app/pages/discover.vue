@@ -2,7 +2,6 @@
 useSeoMeta({ title: 'Descoperă filme — UpNext' })
 
 const STREAMING_PROVIDERS = [
-  { label: 'Toate platformele', value: '' },
   { label: 'Netflix', value: '8' },
   { label: 'HBO Max', value: '384' },
   { label: 'Amazon Prime', value: '119' },
@@ -17,23 +16,28 @@ const SORT_OPTIONS = [
   { label: 'Cele mai vechi', value: 'release_date.asc' }
 ]
 
-const { data: genresData } = await useFetch('/api/movies/genres')
-const genres = computed(() => [
-  { label: 'Toate genurile', value: '' },
-  ...(genresData.value?.genres ?? []).map((g: { id: number, name: string }) => ({
+interface Genre { id: number; name: string }
+interface MovieItem { id: number; title: string; poster_path: string | null; release_date: string; vote_average: number; overview: string }
+interface MovieListResponse { results: MovieItem[]; total_pages: number }
+
+const { data: genresData } = await useFetch<{ genres: Genre[] }>('/api/movies/genres')
+const genres = computed(() =>
+  (genresData.value?.genres ?? []).map((g) => ({
     label: g.name,
     value: String(g.id)
   }))
-])
+)
 
 const search = ref('')
-const selectedGenre = ref('')
-const selectedProvider = ref('')
+const selectedGenre = ref<string | undefined>(undefined)
+const selectedProvider = ref<string | undefined>(undefined)
 const selectedSort = ref('popularity.desc')
-const selectedYear = ref('')
+const selectedYear = ref<string | undefined>(undefined)
 const page = ref(1)
 
-const { data, pending } = await useFetch(() => {
+const isSearching = computed(() => search.value.trim().length > 0)
+
+const { data, pending } = await useFetch<MovieListResponse>(() => {
   if (search.value.trim().length > 0) {
     return `/api/movies/search?query=${encodeURIComponent(search.value)}&page=${page.value}`
   }
@@ -55,13 +59,10 @@ watch([search, selectedGenre, selectedProvider, selectedSort, selectedYear], () 
 })
 
 const currentYear = new Date().getFullYear()
-const years = [
-  { label: 'Orice an', value: '' },
-  ...Array.from({ length: 40 }, (_, i) => {
-    const y = String(currentYear - i)
-    return { label: y, value: y }
-  })
-]
+const years = Array.from({ length: 40 }, (_, i) => {
+  const y = String(currentYear - i)
+  return { label: y, value: y }
+})
 </script>
 
 <template>

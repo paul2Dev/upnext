@@ -10,5 +10,5 @@ export async function tmdbFetch<T>(
       language: 'en-US',
       ...params
     }
-  })
+  }) as unknown as Promise<T>
 }
