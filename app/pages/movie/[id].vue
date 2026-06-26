@@ -15,6 +15,7 @@ interface Movie {
   vote_count: number
   runtime: number | null
   genres: { id: number, name: string }[]
+  belongs_to_collection: { id: number, name: string } | null
   credits: { cast: CastMember[], crew: CrewMember[] }
   videos: { results: Video[] }
 }
@@ -133,6 +134,18 @@ const similarMovies = computed(() => similarData.value?.results?.slice(0, 12) ??
               {{ genre.name }}
             </UBadge>
           </div>
+
+          <NuxtLink
+            v-if="movie.belongs_to_collection"
+            :to="`/collection/${movie.belongs_to_collection.id}`"
+            class="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+          >
+            <UIcon
+              name="i-lucide-library"
+              class="size-4"
+            />
+            {{ movie.belongs_to_collection.name }}
+          </NuxtLink>
 
           <p
             v-if="movie.overview"
