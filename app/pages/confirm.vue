@@ -18,8 +18,13 @@ onMounted(async () => {
   <UApp>
     <div class="min-h-screen flex items-center justify-center">
       <div class="text-center space-y-4">
-        <UIcon name="i-lucide-clapperboard" class="size-12 text-primary animate-pulse mx-auto" />
-        <p class="text-muted">Se autentifică...</p>
+        <UIcon
+          name="i-lucide-clapperboard"
+          class="size-12 text-primary animate-pulse mx-auto"
+        />
+        <p class="text-muted">
+          Se autentifică...
+        </p>
       </div>
     </div>
   </UApp>

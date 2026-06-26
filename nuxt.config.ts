@@ -12,8 +12,6 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  compatibilityDate: '2025-01-15',
-
   runtimeConfig: {
     tmdbApiKey: process.env.TMDB_API_KEY,
     public: {
@@ -22,13 +20,7 @@ export default defineNuxtConfig({
     }
   },
 
-  supabase: {
-    redirectOptions: {
-      login: '/login',
-      callback: '/confirm',
-      exclude: ['/', '/movie/*', '/discover']
-    }
-  },
+  compatibilityDate: '2025-01-15',
 
   eslint: {
     config: {
@@ -36,6 +28,14 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  supabase: {
+    redirectOptions: {
+      login: '/login',
+      callback: '/confirm',
+      exclude: ['/*']
     }
   }
 })

@@ -40,7 +40,10 @@ const userMenuItems = computed(() => [[
   <UApp>
     <UHeader>
       <template #left>
-        <NuxtLink to="/" class="text-xl font-bold text-primary tracking-tight">
+        <NuxtLink
+          to="/"
+          class="text-xl font-bold text-primary tracking-tight"
+        >
           UpNext
         </NuxtLink>
 
@@ -73,7 +76,11 @@ const userMenuItems = computed(() => [[
         </template>
 
         <template v-else>
-          <UButton to="/login" size="sm" label="Autentificare" />
+          <UButton
+            to="/login"
+            size="sm"
+            label="Autentificare"
+          />
         </template>
       </template>
     </UHeader>
