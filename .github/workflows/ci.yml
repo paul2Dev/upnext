@@ -32,3 +32,7 @@ jobs:
 
       - name: Typecheck
         run: pnpm run typecheck
+        env:
+          SUPABASE_URL: https://placeholder.supabase.co
+          SUPABASE_KEY: placeholder-anon-key
+          TMDB_API_KEY: placeholder-tmdb-key
