@@ -15,6 +15,7 @@ const user = useSupabaseUser()
 
 const navLinks = [
   { label: 'Descoperă', to: '/discover', icon: 'i-lucide-compass' },
+  { label: 'Actori', to: '/people', icon: 'i-lucide-users' },
   { label: 'Watchlist', to: '/watchlist', icon: 'i-lucide-bookmark' }
 ]
 

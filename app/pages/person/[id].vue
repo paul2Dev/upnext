@@ -1,12 +1,15 @@
 <script setup lang="ts">
-interface MovieCredit {
+interface MediaCredit {
   id: number
-  title: string
+  title?: string
+  name?: string
   poster_path: string | null
-  release_date: string
+  release_date?: string
+  first_air_date?: string
   vote_average: number
   overview: string
-  character: string
+  character?: string
+  media_type: 'movie' | 'tv'
 }
 interface Person {
   id: number
@@ -17,7 +20,7 @@ interface Person {
   place_of_birth: string | null
   profile_path: string | null
   known_for_department: string
-  movie_credits: { cast: MovieCredit[], crew: MovieCredit[] }
+  combined_credits: { cast: MediaCredit[], crew: MediaCredit[] }
 }
 
 const route = useRoute()
@@ -33,9 +36,9 @@ const { poster } = useTmdbImage()
 
 const knownFor = computed(() => {
   if (!person.value) return []
-  const cast = person.value.movie_credits.cast ?? []
+  const cast = person.value.combined_credits.cast ?? []
   return [...cast]
-    .filter(m => m.poster_path && m.release_date)
+    .filter(m => m.poster_path && (m.release_date || m.first_air_date))
     .sort((a, b) => b.vote_average - a.vote_average)
     .slice(0, 12)
 })
@@ -132,13 +135,13 @@ const biography = computed(() => {
         class="mt-10"
       >
         <h2 class="text-lg font-semibold mb-4">
-          Filme cunoscute
+          Cunoscut din
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          <MovieCard
-            v-for="movie in knownFor"
-            :key="movie.id"
-            :movie="movie"
+          <MediaCard
+            v-for="item in knownFor"
+            :key="`${item.media_type}-${item.id}`"
+            :item="{ ...item, title: item.title ?? item.name ?? '', name: item.name ?? item.title ?? '', first_air_date: item.first_air_date ?? item.release_date ?? '' }"
           />
         </div>
       </div>

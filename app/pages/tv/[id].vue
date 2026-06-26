@@ -3,6 +3,25 @@ interface CastMember { id: number, name: string, character: string, profile_path
 interface CrewMember { id: number, name: string, job: string }
 interface Video { key: string, site: string, type: string, name: string }
 interface Creator { id: number, name: string }
+interface Season {
+  id: number
+  name: string
+  season_number: number
+  episode_count: number
+  air_date: string | null
+  poster_path: string | null
+  overview: string
+}
+interface Episode {
+  id: number
+  name: string
+  episode_number: number
+  air_date: string | null
+  runtime: number | null
+  still_path: string | null
+  overview: string
+  vote_average: number
+}
 interface TvShow {
   id: number
   name: string
@@ -19,6 +38,7 @@ interface TvShow {
   genres: { id: number, name: string }[]
   created_by: Creator[]
   networks: { id: number, name: string, logo_path: string | null }[]
+  seasons: Season[]
   credits: { cast: CastMember[], crew: CrewMember[] }
   videos: { results: Video[] }
 }
@@ -47,6 +67,28 @@ const creators = computed(() => show.value?.created_by?.map(c => c.name).join(',
 const trailer = computed(() => show.value?.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube') ?? null)
 const cast = computed(() => show.value?.credits?.cast?.slice(0, 8) ?? [])
 const similarShows = computed(() => (similarData.value?.results ?? []).slice(0, 12).map(s => ({ ...s, media_type: 'tv' as const })))
+const seasons = computed(() => show.value?.seasons?.filter(s => s.season_number > 0) ?? [])
+
+const openSeason = ref<number | null>(null)
+const episodeCache = ref<Record<number, Episode[]>>({})
+const loadingEpisodes = ref(false)
+
+async function toggleSeason(seasonNumber: number) {
+  if (openSeason.value === seasonNumber) {
+    openSeason.value = null
+    return
+  }
+  openSeason.value = seasonNumber
+  if (!episodeCache.value[seasonNumber]) {
+    loadingEpisodes.value = true
+    try {
+      const data = await $fetch<{ episodes: Episode[] }>(`/api/tv/${id}/season/${seasonNumber}`)
+      episodeCache.value[seasonNumber] = data.episodes ?? []
+    } finally {
+      loadingEpisodes.value = false
+    }
+  }
+}
 </script>
 
 <template>
@@ -175,6 +217,117 @@ const similarShows = computed(() => (similarData.value?.results ?? []).slice(0, 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
           />
+        </div>
+      </div>
+
+      <div
+        v-if="seasons.length"
+        class="mt-10"
+      >
+        <h2 class="text-lg font-semibold mb-4">
+          Sezoane
+        </h2>
+        <div class="space-y-2">
+          <div
+            v-for="season in seasons"
+            :key="season.season_number"
+            class="border border-default rounded-xl overflow-hidden"
+          >
+            <button
+              class="w-full flex items-center gap-4 p-4 text-left hover:bg-elevated transition-colors"
+              @click="toggleSeason(season.season_number)"
+            >
+              <div class="shrink-0 w-10 h-14 rounded-lg overflow-hidden bg-elevated">
+                <img
+                  v-if="season.poster_path"
+                  :src="poster(season.poster_path, 'w185')"
+                  :alt="season.name"
+                  class="w-full h-full object-cover"
+                >
+                <div
+                  v-else
+                  class="w-full h-full flex items-center justify-center"
+                >
+                  <UIcon
+                    name="i-lucide-tv"
+                    class="size-4 text-muted"
+                  />
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium leading-tight">
+                  {{ season.name }}
+                </p>
+                <p class="text-sm text-muted">
+                  {{ season.episode_count }} episoade
+                  <span v-if="season.air_date">· {{ season.air_date.slice(0, 4) }}</span>
+                </p>
+              </div>
+              <UIcon
+                :name="openSeason === season.season_number ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+                class="size-4 text-muted shrink-0"
+              />
+            </button>
+
+            <div v-if="openSeason === season.season_number">
+              <div
+                v-if="loadingEpisodes && !episodeCache[season.season_number]"
+                class="p-4 text-center text-muted text-sm"
+              >
+                <UIcon
+                  name="i-lucide-loader-circle"
+                  class="size-4 animate-spin inline mr-2"
+                />
+                Se încarcă episoadele...
+              </div>
+              <div
+                v-else-if="episodeCache[season.season_number]"
+                class="divide-y divide-default"
+              >
+                <div
+                  v-for="ep in episodeCache[season.season_number]"
+                  :key="ep.id"
+                  class="flex gap-3 p-4 hover:bg-elevated/50 transition-colors"
+                >
+                  <div class="shrink-0 w-24 h-14 rounded-lg overflow-hidden bg-elevated">
+                    <img
+                      v-if="ep.still_path"
+                      :src="poster(ep.still_path, 'w185')"
+                      :alt="ep.name"
+                      class="w-full h-full object-cover"
+                    >
+                    <div
+                      v-else
+                      class="w-full h-full flex items-center justify-center"
+                    >
+                      <UIcon
+                        name="i-lucide-film"
+                        class="size-4 text-muted"
+                      />
+                    </div>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-xs text-muted font-mono shrink-0">{{ ep.episode_number }}.</span>
+                      <p class="font-medium text-sm leading-tight line-clamp-1">
+                        {{ ep.name }}
+                      </p>
+                      <span
+                        v-if="ep.runtime"
+                        class="text-xs text-muted shrink-0 ml-auto"
+                      >{{ ep.runtime }}m</span>
+                    </div>
+                    <p
+                      v-if="ep.overview"
+                      class="text-xs text-muted mt-1 line-clamp-2"
+                    >
+                      {{ ep.overview }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

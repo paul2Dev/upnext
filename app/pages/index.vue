@@ -18,22 +18,36 @@ interface TvItem {
   overview: string
   media_type: 'tv'
 }
+interface AllItem {
+  id: number
+  media_type: 'movie' | 'tv' | 'person'
+  title?: string
+  name?: string
+  poster_path: string | null
+  release_date?: string
+  first_air_date?: string
+  vote_average: number
+  overview: string
+}
 
-const [{ data: trendingData }, { data: upcomingData }, { data: topRatedData }, { data: tvTrendingData }] = await Promise.all([
+const [{ data: trendingData }, { data: upcomingData }, { data: topRatedData }, { data: tvTrendingData }, { data: allTrendingData }] = await Promise.all([
   useFetch<{ results: MovieItem[] }>('/api/movies/trending'),
   useFetch<{ results: MovieItem[] }>('/api/movies/upcoming'),
   useFetch<{ results: MovieItem[] }>('/api/movies/top-rated'),
-  useFetch<{ results: TvItem[] }>('/api/tv/trending')
+  useFetch<{ results: TvItem[] }>('/api/tv/trending'),
+  useFetch<{ results: AllItem[] }>('/api/trending/all')
 ])
 
 const trendingMovies = computed(() => trendingData.value?.results?.slice(0, 18) ?? [])
 const upcomingMovies = computed(() => upcomingData.value?.results?.slice(0, 18) ?? [])
 const topRatedMovies = computed(() => topRatedData.value?.results?.slice(0, 18) ?? [])
 const tvTrending = computed(() => (tvTrendingData.value?.results ?? []).slice(0, 18).map(s => ({ ...s, media_type: 'tv' as const })))
+const allTrending = computed(() => (allTrendingData.value?.results ?? []).filter(i => i.media_type !== 'person').slice(0, 18))
 
 const tabs = [
-  { label: 'Trending filme', slot: 'trending' as const },
-  { label: 'Seriale trending', slot: 'tv' as const },
+  { label: 'Trending', slot: 'all' as const },
+  { label: 'Filme', slot: 'trending' as const },
+  { label: 'Seriale', slot: 'tv' as const },
   { label: 'În curând', slot: 'upcoming' as const },
   { label: 'Cele mai bune', slot: 'top-rated' as const }
 ]
@@ -60,6 +74,16 @@ const tabs = [
 
     <UContainer class="py-10">
       <UTabs :items="tabs">
+        <template #all>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-6">
+            <MediaCard
+              v-for="item in allTrending"
+              :key="`${item.media_type}-${item.id}`"
+              :item="item"
+            />
+          </div>
+        </template>
+
         <template #trending>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-6">
             <MovieCard

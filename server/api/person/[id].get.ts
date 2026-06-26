@@ -6,8 +6,8 @@ export default defineEventHandler(async (event) => {
 
   const [details, credits] = await Promise.all([
     tmdbFetch<Record<string, unknown>>(`/person/${id}`),
-    tmdbFetch<Record<string, unknown>>(`/person/${id}/movie_credits`)
+    tmdbFetch<Record<string, unknown>>(`/person/${id}/combined_credits`)
   ])
 
-  return { ...details, movie_credits: credits }
+  return { ...details, combined_credits: credits }
 })

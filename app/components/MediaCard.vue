@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface MediaItem {
   id: number
-  media_type?: 'movie' | 'tv' | 'person'
+  media_type?: 'movie' | 'tv' | 'person' | 'collection'
   title?: string
   name?: string
   release_date?: string
@@ -24,6 +24,7 @@ const imageUrl = computed(() => poster(imagePath.value))
 const link = computed(() => {
   if (mediaType.value === 'tv') return `/tv/${item.id}`
   if (mediaType.value === 'person') return `/person/${item.id}`
+  if (mediaType.value === 'collection') return `/collection/${item.id}`
   return `/movie/${item.id}`
 })
 </script>
