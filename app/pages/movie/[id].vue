@@ -172,12 +172,13 @@ const similarMovies = computed(() => similarData.value?.results?.slice(0, 12) ??
           Distribuție
         </h2>
         <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
-          <div
+          <NuxtLink
             v-for="actor in cast"
             :key="actor.id"
-            class="text-center"
+            :to="`/person/${actor.id}`"
+            class="text-center group"
           >
-            <div class="aspect-square rounded-full overflow-hidden bg-elevated mx-auto mb-1 size-14 sm:size-16">
+            <div class="aspect-square rounded-full overflow-hidden bg-elevated mx-auto mb-1 size-14 sm:size-16 ring-2 ring-transparent group-hover:ring-primary transition-all">
               <img
                 v-if="actor.profile_path"
                 :src="poster(actor.profile_path, 'w185')"
@@ -194,13 +195,13 @@ const similarMovies = computed(() => similarData.value?.results?.slice(0, 12) ??
                 />
               </div>
             </div>
-            <p class="text-xs font-medium leading-tight line-clamp-1">
+            <p class="text-xs font-medium leading-tight line-clamp-1 group-hover:text-primary transition-colors">
               {{ actor.name }}
             </p>
             <p class="text-xs text-muted leading-tight line-clamp-1">
               {{ actor.character }}
             </p>
-          </div>
+          </NuxtLink>
         </div>
       </div>
 
