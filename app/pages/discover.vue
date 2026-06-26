@@ -16,13 +16,13 @@ const SORT_OPTIONS = [
   { label: 'Cele mai vechi', value: 'release_date.asc' }
 ]
 
-interface Genre { id: number; name: string }
-interface MovieItem { id: number; title: string; poster_path: string | null; release_date: string; vote_average: number; overview: string }
-interface MovieListResponse { results: MovieItem[]; total_pages: number }
+interface Genre { id: number, name: string }
+interface MovieItem { id: number, title: string, poster_path: string | null, release_date: string, vote_average: number, overview: string }
+interface MovieListResponse { results: MovieItem[], total_pages: number }
 
 const { data: genresData } = await useFetch<{ genres: Genre[] }>('/api/movies/genres')
 const genres = computed(() =>
-  (genresData.value?.genres ?? []).map((g) => ({
+  (genresData.value?.genres ?? []).map(g => ({
     label: g.name,
     value: String(g.id)
   }))
