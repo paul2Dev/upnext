@@ -33,10 +33,8 @@ const selectedSort = ref('popularity.desc')
 const selectedYear = ref('')
 const page = ref(1)
 
-const isSearching = computed(() => search.value.trim().length > 0)
-
-const { data, pending, refresh } = await useFetch(() => {
-  if (isSearching.value) {
+const { data, pending } = await useFetch(() => {
+  if (search.value.trim().length > 0) {
     return `/api/movies/search?query=${encodeURIComponent(search.value)}&page=${page.value}`
   }
   const params = new URLSearchParams({
@@ -47,22 +45,23 @@ const { data, pending, refresh } = await useFetch(() => {
   if (selectedProvider.value) params.set('provider', selectedProvider.value)
   if (selectedYear.value) params.set('year', selectedYear.value)
   return `/api/movies/discover?${params}`
-}, { watch: [page] })
+})
 
 const movies = computed(() => data.value?.results ?? [])
 const totalPages = computed(() => Math.min(data.value?.total_pages ?? 1, 500))
 
 watch([search, selectedGenre, selectedProvider, selectedSort, selectedYear], () => {
   page.value = 1
-  refresh()
 })
 
 const currentYear = new Date().getFullYear()
-const years = Array.from({ length: 40 }, (_, i) => {
-  const y = String(currentYear - i)
-  return { label: y, value: y }
-})
-years.unshift({ label: 'Orice an', value: '' })
+const years = [
+  { label: 'Orice an', value: '' },
+  ...Array.from({ length: 40 }, (_, i) => {
+    const y = String(currentYear - i)
+    return { label: y, value: y }
+  })
+]
 </script>
 
 <template>
@@ -124,7 +123,7 @@ years.unshift({ label: 'Orice an', value: '' })
         <div
           v-for="n in 20"
           :key="n"
-          class="aspect-[2/3] rounded-lg bg-elevated animate-pulse"
+          class="aspect-2/3 rounded-lg bg-elevated animate-pulse"
         />
       </div>
 

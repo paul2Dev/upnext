@@ -5,15 +5,12 @@ interface Movie {
   poster_path: string | null
   release_date: string
   vote_average: number
-  genre_ids?: number[]
   overview: string
 }
 
 const { movie } = defineProps<{ movie: Movie }>()
 
 const { poster } = useTmdbImage()
-const year = computed(() => movie.release_date?.slice(0, 4) ?? '—')
-const rating = computed(() => movie.vote_average?.toFixed(1) ?? '—')
 const posterUrl = computed(() => poster(movie.poster_path))
 </script>
 
@@ -22,7 +19,7 @@ const posterUrl = computed(() => poster(movie.poster_path))
     :to="`/movie/${movie.id}`"
     class="group block"
   >
-    <div class="relative overflow-hidden rounded-lg bg-elevated aspect-[2/3]">
+    <div class="relative overflow-hidden rounded-lg bg-elevated aspect-2/3">
       <img
         v-if="posterUrl"
         :src="posterUrl"
@@ -50,7 +47,7 @@ const posterUrl = computed(() => poster(movie.poster_path))
             name="i-lucide-star"
             class="size-3 text-yellow-400 mr-1"
           />
-          {{ rating }}
+          {{ movie.vote_average?.toFixed(1) ?? '—' }}
         </UBadge>
       </div>
     </div>
@@ -60,7 +57,7 @@ const posterUrl = computed(() => poster(movie.poster_path))
         {{ movie.title }}
       </p>
       <p class="text-xs text-muted">
-        {{ year }}
+        {{ movie.release_date?.slice(0, 4) ?? '—' }}
       </p>
     </div>
   </NuxtLink>
