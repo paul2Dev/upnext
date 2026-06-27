@@ -18,7 +18,7 @@ async function signInWithGoogle() {
 
 <template>
   <UApp>
-    <div class="h-dvh flex items-center justify-center bg-background px-4 overflow-hidden">
+    <div class="fixed inset-0 flex items-center justify-center bg-background px-4">
       <div class="w-full max-w-sm space-y-8">
         <div class="text-center space-y-2">
           <h1 class="text-4xl font-bold tracking-tight text-primary">
