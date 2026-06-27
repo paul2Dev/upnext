@@ -1,7 +1,11 @@
 <script setup lang="ts">
 useHead({
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
-  link: [{ rel: 'icon', href: '/favicon.ico' }],
+  link: [
+    { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
+    { rel: 'icon', href: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
+    { rel: 'apple-touch-icon', href: '/apple-touch-icon-180x180.png' }
+  ],
   htmlAttrs: { lang: 'en' }
 })
 
@@ -83,7 +87,7 @@ const userMenuItems = computed(() => [[
             class="absolute left-0 top-0 h-full w-64 bg-default border-r border-default flex flex-col p-4 gap-1"
           >
             <div class="flex items-center justify-between mb-4 px-2">
-              <span class="text-lg font-bold text-primary">UpNext</span>
+              <AppLogo size="size-5" />
               <UButton
                 color="neutral"
                 variant="ghost"
@@ -157,11 +161,8 @@ const userMenuItems = computed(() => [[
           @click="mobileMenuOpen = !mobileMenuOpen"
         />
 
-        <NuxtLink
-          to="/"
-          class="text-xl font-bold text-primary tracking-tight"
-        >
-          UpNext
+        <NuxtLink to="/">
+          <AppLogo />
         </NuxtLink>
 
         <nav class="hidden md:flex items-center gap-1 ml-6">
