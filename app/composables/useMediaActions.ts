@@ -28,6 +28,7 @@ interface WatchedRow {
 
 export function useMediaActions(mediaId: number, mediaType: 'movie' | 'tv', tmdbData: TmdbData) {
   const user = useSupabaseUser()
+  const toast = useToast()
 
   const inWatchlist = ref(false)
   const isWatched = ref(false)
@@ -71,6 +72,8 @@ export function useMediaActions(mediaId: number, mediaType: 'movie' | 'tv', tmdb
         })
         inWatchlist.value = true
       }
+    } catch {
+      toast.add({ title: 'Eroare', description: 'Nu s-a putut actualiza watchlist-ul.', color: 'error' })
     } finally {
       loadingWatchlist.value = false
     }
@@ -95,6 +98,8 @@ export function useMediaActions(mediaId: number, mediaType: 'movie' | 'tv', tmdb
         userRating.value = rating
         isWatched.value = true
       }
+    } catch {
+      toast.add({ title: 'Eroare', description: 'Nu s-a putut salva ratingul.', color: 'error' })
     } finally {
       loadingWatched.value = false
     }

@@ -30,7 +30,7 @@ const [{ data: upcomingData }, { data: topRatedData }, { data: allTrendingData }
   useFetch<{ results: AllItem[] }>('/api/trending/all')
 ])
 
-const { data: recommendationsData, execute: fetchRecommendations } = useLazyFetch<{ results: MovieItem[] }>(
+const { data: recommendationsData, pending: loadingRecommendations, execute: fetchRecommendations } = useLazyFetch<{ results: MovieItem[] }>(
   '/api/user/recommendations',
   { immediate: false }
 )
@@ -114,6 +114,18 @@ const tabs = [
                 label="Configurează profilul"
                 icon="i-lucide-arrow-right"
                 trailing
+              />
+            </div>
+
+            <!-- Recommendations loading -->
+            <div
+              v-else-if="loadingRecommendations"
+              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+            >
+              <div
+                v-for="n in 18"
+                :key="n"
+                class="aspect-2/3 rounded-lg bg-elevated animate-pulse"
               />
             </div>
 

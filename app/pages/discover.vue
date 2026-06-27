@@ -70,7 +70,11 @@ function preferredGenreForCurrent() {
   return match ? String(match) : undefined
 }
 
-const selectedGenre = ref<string | undefined>(preferredGenreForCurrent())
+const selectedGenre = ref<string | undefined>(undefined)
+
+onMounted(() => {
+  selectedGenre.value = preferredGenreForCurrent()
+})
 
 const isSearching = computed(() => search.value.trim().length > 0)
 

@@ -6,6 +6,8 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase'
   ],
 
+  ssr: false,
+
   devtools: {
     enabled: true
   },
