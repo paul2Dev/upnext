@@ -30,6 +30,9 @@ interface AllItem {
   overview: string
 }
 
+const user = useSupabaseUser()
+const profileCache = useState<{ onboarding_done: boolean } | null>('profile-cache')
+
 const [{ data: trendingData }, { data: upcomingData }, { data: topRatedData }, { data: tvTrendingData }, { data: allTrendingData }] = await Promise.all([
   useFetch<{ results: MovieItem[] }>('/api/movies/trending'),
   useFetch<{ results: MovieItem[] }>('/api/movies/upcoming'),
@@ -38,13 +41,28 @@ const [{ data: trendingData }, { data: upcomingData }, { data: topRatedData }, {
   useFetch<{ results: AllItem[] }>('/api/trending/all')
 ])
 
+const { data: recommendationsData, execute: fetchRecommendations } = useLazyFetch<{ results: MovieItem[] }>(
+  '/api/user/recommendations',
+  { immediate: false }
+)
+
+watch(
+  () => !!(user.value && profileCache.value?.onboarding_done),
+  (ready) => { if (ready) fetchRecommendations() },
+  { immediate: true }
+)
+
 const trendingMovies = computed(() => trendingData.value?.results?.slice(0, 18) ?? [])
 const upcomingMovies = computed(() => upcomingData.value?.results?.slice(0, 18) ?? [])
 const topRatedMovies = computed(() => topRatedData.value?.results?.slice(0, 18) ?? [])
 const tvTrending = computed(() => (tvTrendingData.value?.results ?? []).slice(0, 18).map(s => ({ ...s, media_type: 'tv' as const })))
 const allTrending = computed(() => (allTrendingData.value?.results ?? []).filter(i => i.media_type !== 'person').slice(0, 18))
+const recommendations = computed(() => (recommendationsData.value as { results: MovieItem[] } | null)?.results ?? [])
+
+const onboardingDone = computed(() => !!profileCache.value?.onboarding_done)
 
 const tabs = [
+  { label: 'Pentru tine', slot: 'foryou' as const },
   { label: 'Trending', slot: 'all' as const },
   { label: 'Filme', slot: 'trending' as const },
   { label: 'Seriale', slot: 'tv' as const },
@@ -74,6 +92,60 @@ const tabs = [
 
     <UContainer class="py-10">
       <UTabs :items="tabs">
+        <template #foryou>
+          <div class="pt-6">
+            <!-- Not logged in -->
+            <div
+              v-if="!user"
+              class="flex flex-col items-center gap-4 py-16 text-center"
+            >
+              <UIcon
+                name="i-lucide-sparkles"
+                class="text-4xl text-muted"
+              />
+              <p class="text-muted">
+                Loghează-te pentru a vedea recomandări personalizate.
+              </p>
+              <UButton
+                to="/login"
+                label="Intră în cont"
+              />
+            </div>
+
+            <!-- Onboarding not done -->
+            <div
+              v-else-if="!onboardingDone"
+              class="flex flex-col items-center gap-4 py-16 text-center"
+            >
+              <UIcon
+                name="i-lucide-user-circle"
+                class="text-4xl text-muted"
+              />
+              <p class="text-muted">
+                Completează-ți profilul pentru recomandări personalizate.
+              </p>
+              <UButton
+                to="/onboarding"
+                label="Configurează profilul"
+                icon="i-lucide-arrow-right"
+                trailing
+              />
+            </div>
+
+            <!-- Recommendations -->
+            <div
+              v-else
+              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+            >
+              <MovieCard
+                v-for="movie in recommendations"
+                :key="movie.id"
+                :movie="movie"
+              />
+            </div>
+          </div>
+        </template>
+
         <template #all>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-6">
             <MediaCard
