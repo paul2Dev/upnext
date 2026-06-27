@@ -36,12 +36,6 @@ interface MediaItem {
   overview: string
 }
 interface MediaListResponse { results: MediaItem[], total_pages: number }
-interface CollectionItem {
-  id: number
-  name: string
-  poster_path: string | null
-  overview: string
-}
 
 const profileCache = useState<{ preferred_genres?: number[] } | null>('profile-cache')
 
@@ -49,10 +43,9 @@ const mediaType = ref<'movie' | 'tv' | 'collection'>('movie')
 const isMovie = computed(() => mediaType.value === 'movie')
 const isCollection = computed(() => mediaType.value === 'collection')
 
-const [{ data: movieGenresData }, { data: tvGenresData }, { data: popularCollectionsData }] = await Promise.all([
+const [{ data: movieGenresData }, { data: tvGenresData }] = await Promise.all([
   useFetch<{ genres: Genre[] }>('/api/movies/genres'),
-  useFetch<{ genres: Genre[] }>('/api/tv/genres'),
-  useFetch<{ results: CollectionItem[] }>('/api/collections/popular')
+  useFetch<{ genres: Genre[] }>('/api/tv/genres')
 ])
 
 const genres = computed(() =>
@@ -83,8 +76,10 @@ const isSearching = computed(() => search.value.trim().length > 0)
 
 const { data, pending } = await useFetch<MediaListResponse>(() => {
   if (isCollection.value) {
-    if (!isSearching.value) return null as unknown as string
-    return `/api/collections/search?query=${encodeURIComponent(search.value)}&page=${page.value}`
+    if (isSearching.value) {
+      return `/api/collections/search?query=${encodeURIComponent(search.value)}&page=${page.value}`
+    }
+    return `/api/collections/popular?page=${page.value}`
   }
   const base = isMovie.value ? '/api/movies' : '/api/tv'
   if (isSearching.value) {
@@ -97,14 +92,11 @@ const { data, pending } = await useFetch<MediaListResponse>(() => {
   return `${base}/discover?${params}`
 })
 
-const results = computed(() => {
-  return (data.value?.results ?? []).map(item => ({
+const results = computed(() =>
+  (data.value?.results ?? []).map(item => ({
     ...item,
     media_type: item.media_type ?? (isCollection.value ? 'collection' : mediaType.value)
   }))
-})
-const popularCollections = computed(() =>
-  (popularCollectionsData.value?.results ?? []).map(c => ({ ...c, media_type: 'collection' as const }))
 )
 const totalPages = computed(() => Math.min(data.value?.total_pages ?? 1, 500))
 
@@ -210,65 +202,52 @@ const years = Array.from({ length: 40 }, (_, i) => {
         </template>
       </div>
 
-      <!-- Colecții populare implicite -->
-      <template v-if="isCollection && !isSearching">
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          <MediaCard
-            v-for="col in popularCollections"
-            :key="col.id"
-            :item="col"
-          />
-        </div>
-      </template>
+      <!-- Rezultate search / browse / popular collections -->
+      <div
+        v-if="pending"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+      >
+        <div
+          v-for="n in 20"
+          :key="n"
+          class="aspect-2/3 rounded-lg bg-elevated animate-pulse"
+        />
+      </div>
 
-      <!-- Rezultate search / browse -->
       <template v-else>
         <div
-          v-if="pending"
+          v-if="results.length"
           class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
         >
-          <div
-            v-for="n in 20"
-            :key="n"
-            class="aspect-2/3 rounded-lg bg-elevated animate-pulse"
+          <MediaCard
+            v-for="item in results"
+            :key="item.id"
+            :item="item"
           />
         </div>
 
-        <template v-else>
-          <div
-            v-if="results.length"
-            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-          >
-            <MediaCard
-              v-for="item in results"
-              :key="item.id"
-              :item="item"
-            />
-          </div>
+        <div
+          v-else
+          class="text-center py-16 text-muted"
+        >
+          <UIcon
+            name="i-lucide-film"
+            class="size-12 mx-auto mb-3"
+          />
+          <p>Niciun rezultat găsit. Încearcă alte filtre.</p>
+        </div>
 
-          <div
-            v-else
-            class="text-center py-16 text-muted"
-          >
-            <UIcon
-              name="i-lucide-film"
-              class="size-12 mx-auto mb-3"
-            />
-            <p>Niciun rezultat găsit. Încearcă alte filtre.</p>
-          </div>
-
-          <div
-            v-if="totalPages > 1"
-            class="flex justify-center pt-4"
-          >
-            <UPagination
-              v-model:page="page"
-              :total="totalPages * 20"
-              :items-per-page="20"
-              :sibling-count="1"
-            />
-          </div>
-        </template>
+        <div
+          v-if="totalPages > 1"
+          class="flex justify-center pt-4"
+        >
+          <UPagination
+            v-model:page="page"
+            :total="totalPages * 20"
+            :items-per-page="20"
+            :sibling-count="1"
+          />
+        </div>
       </template>
     </div>
   </UContainer>

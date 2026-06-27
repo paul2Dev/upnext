@@ -44,7 +44,7 @@ watch(
 const upcomingMovies = computed(() => upcomingData.value?.results?.slice(0, 18) ?? [])
 const topRatedMovies = computed(() => topRatedData.value?.results?.slice(0, 18) ?? [])
 const allTrending = computed(() => (allTrendingData.value?.results ?? []).filter(i => i.media_type !== 'person').slice(0, 18))
-const recommendations = computed(() => (recommendationsData.value as { results: MovieItem[] } | null)?.results ?? [])
+const recommendations = computed(() => ((recommendationsData.value as { results: MovieItem[] } | null)?.results ?? []).slice(0, 18))
 
 const onboardingDone = computed(() => !!profileCache.value?.onboarding_done)
 
