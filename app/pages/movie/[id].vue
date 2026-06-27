@@ -50,6 +50,22 @@ const director = computed(() => movie.value?.credits?.crew?.find(c => c.job === 
 const trailer = computed(() => movie.value?.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube') ?? null)
 const cast = computed(() => movie.value?.credits?.cast?.slice(0, 8) ?? [])
 const similarMovies = computed(() => similarData.value?.results?.slice(0, 12) ?? [])
+
+const tmdbData = computed(() => ({
+  id: movie.value!.id,
+  media_type: 'movie' as const,
+  title: movie.value!.title,
+  poster_path: movie.value!.poster_path,
+  release_date: movie.value!.release_date,
+  vote_average: movie.value!.vote_average,
+  overview: movie.value!.overview
+}))
+
+const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleWatchlist, setRating } = useMediaActions(
+  Number(id),
+  'movie',
+  tmdbData.value
+)
 </script>
 
 <template>
@@ -154,6 +170,37 @@ const similarMovies = computed(() => similarData.value?.results?.slice(0, 12) ??
               />
               {{ movie.belongs_to_collection.name }}
             </NuxtLink>
+
+            <div
+              v-if="user"
+              class="flex flex-wrap items-center gap-3 pt-1"
+            >
+              <UButton
+                :icon="inWatchlist ? 'i-lucide-bookmark-check' : 'i-lucide-bookmark-plus'"
+                :color="inWatchlist ? 'primary' : 'neutral'"
+                :variant="inWatchlist ? 'soft' : 'outline'"
+                :loading="loadingWatchlist"
+                size="sm"
+                @click="toggleWatchlist"
+              >
+                {{ inWatchlist ? 'În watchlist' : 'Adaugă la watchlist' }}
+              </UButton>
+
+              <div class="flex items-center gap-1">
+                <span class="text-sm text-muted mr-1">Rating:</span>
+                <UButton
+                  v-for="star in 5"
+                  :key="star"
+                  :icon="star <= (userRating ?? 0) ? 'i-lucide-star' : 'i-lucide-star'"
+                  :color="star <= (userRating ?? 0) ? 'warning' : 'neutral'"
+                  :variant="star <= (userRating ?? 0) ? 'soft' : 'ghost'"
+                  size="xs"
+                  :loading="loadingWatched && userRating === null"
+                  square
+                  @click="setRating(star)"
+                />
+              </div>
+            </div>
 
             <p
               v-if="movie.overview"

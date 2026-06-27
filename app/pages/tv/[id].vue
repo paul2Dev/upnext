@@ -69,6 +69,22 @@ const cast = computed(() => show.value?.credits?.cast?.slice(0, 8) ?? [])
 const similarShows = computed(() => (similarData.value?.results ?? []).slice(0, 12).map(s => ({ ...s, media_type: 'tv' as const })))
 const seasons = computed(() => show.value?.seasons?.filter(s => s.season_number > 0) ?? [])
 
+const tmdbData = computed(() => ({
+  id: show.value!.id,
+  media_type: 'tv' as const,
+  name: show.value!.name,
+  poster_path: show.value!.poster_path,
+  first_air_date: show.value!.first_air_date,
+  vote_average: show.value!.vote_average,
+  overview: show.value!.overview
+}))
+
+const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleWatchlist, setRating } = useMediaActions(
+  Number(id),
+  'tv',
+  tmdbData.value
+)
+
 const openSeason = ref<number | null>(null)
 const episodeCache = ref<Record<number, Episode[]>>({})
 const loadingEpisodes = ref(false)
@@ -196,6 +212,37 @@ async function toggleSeason(seasonNumber: number) {
               >
                 {{ genre.name }}
               </UBadge>
+            </div>
+
+            <div
+              v-if="user"
+              class="flex flex-wrap items-center gap-3 pt-1"
+            >
+              <UButton
+                :icon="inWatchlist ? 'i-lucide-bookmark-check' : 'i-lucide-bookmark-plus'"
+                :color="inWatchlist ? 'primary' : 'neutral'"
+                :variant="inWatchlist ? 'soft' : 'outline'"
+                :loading="loadingWatchlist"
+                size="sm"
+                @click="toggleWatchlist"
+              >
+                {{ inWatchlist ? 'În watchlist' : 'Adaugă la watchlist' }}
+              </UButton>
+
+              <div class="flex items-center gap-1">
+                <span class="text-sm text-muted mr-1">Rating:</span>
+                <UButton
+                  v-for="star in 5"
+                  :key="star"
+                  :icon="star <= (userRating ?? 0) ? 'i-lucide-star' : 'i-lucide-star'"
+                  :color="star <= (userRating ?? 0) ? 'warning' : 'neutral'"
+                  :variant="star <= (userRating ?? 0) ? 'soft' : 'ghost'"
+                  size="xs"
+                  :loading="loadingWatched && userRating === null"
+                  square
+                  @click="setRating(star)"
+                />
+              </div>
             </div>
 
             <p
