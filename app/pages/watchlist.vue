@@ -74,15 +74,16 @@ async function remove(item: WatchlistRow) {
         class="relative group"
       >
         <MediaCard :item="{ ...item.tmdb_data, media_type: item.media_type as 'movie' | 'tv' }" />
-        <UButton
-          icon="i-lucide-x"
-          color="neutral"
-          variant="solid"
-          size="xs"
-          class="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 hover:bg-black/90"
-          :loading="removing === item.id"
+        <button
+          class="absolute top-1.5 left-1.5 size-6 rounded-full bg-white text-black flex items-center justify-center shadow-md hover:bg-red-500 hover:text-white transition-colors z-10"
+          :disabled="removing === item.id"
           @click.prevent="remove(item)"
-        />
+        >
+          <UIcon
+            name="i-lucide-x"
+            class="size-3.5"
+          />
+        </button>
       </div>
     </div>
   </UContainer>

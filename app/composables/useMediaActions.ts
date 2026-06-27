@@ -82,7 +82,7 @@ export function useMediaActions(mediaId: number, mediaType: 'movie' | 'tv', tmdb
     try {
       await $fetch('/api/user/ratings', {
         method: 'POST',
-        body: { movie_id: mediaId, media_type: mediaType, rating }
+        body: { movie_id: mediaId, media_type: mediaType, rating, tmdb_data: tmdbData }
       })
       userRating.value = rating
       isWatched.value = true

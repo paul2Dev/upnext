@@ -186,20 +186,11 @@ const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleW
                 {{ inWatchlist ? 'În watchlist' : 'Adaugă la watchlist' }}
               </UButton>
 
-              <div class="flex items-center gap-1">
-                <span class="text-sm text-muted mr-1">Rating:</span>
-                <UButton
-                  v-for="star in 5"
-                  :key="star"
-                  :icon="star <= (userRating ?? 0) ? 'i-lucide-star' : 'i-lucide-star'"
-                  :color="star <= (userRating ?? 0) ? 'warning' : 'neutral'"
-                  :variant="star <= (userRating ?? 0) ? 'soft' : 'ghost'"
-                  size="xs"
-                  :loading="loadingWatched && userRating === null"
-                  square
-                  @click="setRating(star)"
-                />
-              </div>
+              <RatingButton
+                :model-value="userRating"
+                :loading="loadingWatched"
+                @update:model-value="setRating"
+              />
             </div>
 
             <p
