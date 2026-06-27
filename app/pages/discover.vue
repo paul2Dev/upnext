@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Descoperă — UpNext' })
+useSeoMeta({ title: 'Discover — UpNext' })
 
 const STREAMING_PROVIDERS = [
   { label: 'Netflix', value: '8' },
@@ -10,17 +10,17 @@ const STREAMING_PROVIDERS = [
 ]
 
 const MOVIE_SORT_OPTIONS = [
-  { label: 'Popularitate', value: 'popularity.desc' },
+  { label: 'Popularity', value: 'popularity.desc' },
   { label: 'Rating', value: 'vote_average.desc' },
-  { label: 'Cele mai noi', value: 'release_date.desc' },
-  { label: 'Cele mai vechi', value: 'release_date.asc' }
+  { label: 'Newest', value: 'release_date.desc' },
+  { label: 'Oldest', value: 'release_date.asc' }
 ]
 
 const TV_SORT_OPTIONS = [
-  { label: 'Popularitate', value: 'popularity.desc' },
+  { label: 'Popularity', value: 'popularity.desc' },
   { label: 'Rating', value: 'vote_average.desc' },
-  { label: 'Cele mai noi', value: 'first_air_date.desc' },
-  { label: 'Cele mai vechi', value: 'first_air_date.asc' }
+  { label: 'Newest', value: 'first_air_date.desc' },
+  { label: 'Oldest', value: 'first_air_date.asc' }
 ]
 
 interface Genre { id: number, name: string }
@@ -128,7 +128,7 @@ const years = Array.from({ length: 40 }, (_, i) => {
     <div class="space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold">
-          Descoperă
+          Discover
         </h1>
         <div class="flex rounded-lg overflow-hidden border border-default">
           <button
@@ -136,21 +136,21 @@ const years = Array.from({ length: 40 }, (_, i) => {
             :class="mediaType === 'movie' ? 'bg-primary text-white' : 'text-muted hover:text-default'"
             @click="mediaType = 'movie'"
           >
-            Filme
+            Movies
           </button>
           <button
             class="px-4 py-1.5 text-sm font-medium transition-colors"
             :class="mediaType === 'tv' ? 'bg-primary text-white' : 'text-muted hover:text-default'"
             @click="mediaType = 'tv'"
           >
-            Seriale
+            TV Shows
           </button>
           <button
             class="px-4 py-1.5 text-sm font-medium transition-colors"
             :class="mediaType === 'collection' ? 'bg-primary text-white' : 'text-muted hover:text-default'"
             @click="mediaType = 'collection'"
           >
-            Colecții
+            Collections
           </button>
         </div>
       </div>
@@ -158,7 +158,7 @@ const years = Array.from({ length: 40 }, (_, i) => {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <UInput
           v-model="search"
-          :placeholder="isCollection ? 'Caută o colecție (ex: Marvel, Dark Knight)...' : isMovie ? 'Caută un film...' : 'Caută un serial...'"
+          :placeholder="isCollection ? 'Search a collection (e.g. Marvel, Dark Knight)...' : isMovie ? 'Search a movie...' : 'Search a TV show...'"
           icon="i-lucide-search"
           size="md"
           :class="isCollection ? 'lg:col-span-4' : 'lg:col-span-1'"
@@ -168,7 +168,7 @@ const years = Array.from({ length: 40 }, (_, i) => {
           <USelect
             v-model="selectedGenre"
             :items="genres"
-            placeholder="Gen"
+            placeholder="Genre"
             size="md"
             :disabled="isSearching"
           />
@@ -177,7 +177,7 @@ const years = Array.from({ length: 40 }, (_, i) => {
             v-if="isMovie"
             v-model="selectedProvider"
             :items="STREAMING_PROVIDERS"
-            placeholder="Platformă"
+            placeholder="Platform"
             size="md"
             :disabled="isSearching"
           />
@@ -189,7 +189,7 @@ const years = Array.from({ length: 40 }, (_, i) => {
             <USelect
               v-model="selectedYear"
               :items="years"
-              placeholder="An"
+              placeholder="Year"
               size="md"
               class="flex-1"
               :disabled="isSearching"
@@ -238,7 +238,7 @@ const years = Array.from({ length: 40 }, (_, i) => {
             name="i-lucide-film"
             class="size-12 mx-auto mb-3"
           />
-          <p>Niciun rezultat găsit. Încearcă alte filtre.</p>
+          <p>No results found. Try different filters.</p>
         </div>
 
         <div

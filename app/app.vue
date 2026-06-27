@@ -2,12 +2,12 @@
 useHead({
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   link: [{ rel: 'icon', href: '/favicon.ico' }],
-  htmlAttrs: { lang: 'ro' }
+  htmlAttrs: { lang: 'en' }
 })
 
 useSeoMeta({
-  title: 'UpNext — Descoperă filmul perfect',
-  description: 'Watchlist personal, recomandări bazate pe gusturile tale și disponibilitate pe platformele de streaming.'
+  title: 'UpNext — Find Your Next Watch',
+  description: 'Personal watchlist, recommendations based on your taste and streaming platform availability.'
 })
 
 const supabase = useSupabaseClient()
@@ -20,8 +20,8 @@ watch(() => route.path, () => {
 })
 
 const navLinks = [
-  { label: 'Descoperă', to: '/discover', icon: 'i-lucide-compass' },
-  { label: 'Actori', to: '/people', icon: 'i-lucide-users' },
+  { label: 'Discover', to: '/discover', icon: 'i-lucide-compass' },
+  { label: 'People', to: '/people', icon: 'i-lucide-users' },
   { label: 'Watchlist', to: '/watchlist', icon: 'i-lucide-bookmark' }
 ]
 
@@ -33,13 +33,13 @@ const userMenuItems = computed(() => [[
   }
 ], [
   {
-    label: 'Profilul meu',
+    label: 'My Profile',
     icon: 'i-lucide-user',
     to: '/profile'
   }
 ], [
   {
-    label: 'Deconectare',
+    label: 'Sign out',
     icon: 'i-lucide-log-out',
     onSelect: async () => {
       await supabase.auth.signOut()
@@ -126,7 +126,7 @@ const userMenuItems = computed(() => [[
                   color="neutral"
                   variant="ghost"
                   icon="i-lucide-log-out"
-                  label="Deconectare"
+                  label="Sign out"
                   class="justify-start w-full mt-1"
                   @click="async () => { await supabase.auth.signOut(); await navigateTo('/login') }"
                 />
@@ -134,7 +134,7 @@ const userMenuItems = computed(() => [[
               <UButton
                 v-else
                 to="/login"
-                label="Autentificare"
+                label="Sign in"
                 icon="i-lucide-log-in"
                 class="w-full justify-start"
                 color="neutral"
@@ -153,7 +153,7 @@ const userMenuItems = computed(() => [[
           color="neutral"
           variant="ghost"
           icon="i-lucide-menu"
-          aria-label="Meniu"
+          aria-label="Menu"
           @click="mobileMenuOpen = !mobileMenuOpen"
         />
 
@@ -196,7 +196,7 @@ const userMenuItems = computed(() => [[
           <UButton
             to="/login"
             size="sm"
-            label="Autentificare"
+            label="Sign in"
           />
         </template>
       </template>

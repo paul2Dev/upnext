@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'UpNext — Descoperă filme' })
+useSeoMeta({ title: 'UpNext — Discover Movies' })
 
 interface MovieItem {
   id: number
@@ -57,16 +57,16 @@ const recommendations = computed(() => ((recommendationsData.value as { results:
 const onboardingDone = computed(() => !!profileCache.value?.onboarding_done)
 
 const tabs = [
-  { label: 'Pentru tine', slot: 'foryou' as const },
+  { label: 'For You', slot: 'foryou' as const },
   { label: 'Trending', slot: 'all' as const },
-  { label: 'În curând', slot: 'upcoming' as const },
-  { label: 'Cele mai bune', slot: 'top-rated' as const }
+  { label: 'Coming Soon', slot: 'upcoming' as const },
+  { label: 'Top Rated', slot: 'top-rated' as const }
 ]
 </script>
 
 <template>
   <div class="relative">
-    <!-- Backdrop — pornește din vârf, se pierde în fundalul paginii -->
+    <!-- Backdrop -->
     <div class="absolute inset-x-0 top-0 h-140 sm:h-160 lg:h-180 overflow-hidden">
       <Transition
         enter-active-class="transition-opacity duration-1000"
@@ -88,14 +88,14 @@ const tabs = [
     <div class="relative">
       <UContainer class="py-20 text-center space-y-4">
         <h1 class="text-4xl font-bold text-white drop-shadow-lg">
-          Ce urmărești în seara asta?
+          Stop scrolling. Start watching.
         </h1>
         <p class="text-white/70 text-lg max-w-xl mx-auto drop-shadow">
-          Descoperă filme și seriale noi, urmărește ce ți-a plăcut și primești recomandări personalizate.
+          Rate what you've seen, discover what's next, and never waste an evening on a bad pick again.
         </p>
         <UButton
           to="/discover"
-          label="Explorează"
+          label="Explore"
           icon="i-lucide-compass"
           size="lg"
         />
@@ -116,11 +116,11 @@ const tabs = [
                 class="text-4xl text-muted"
               />
               <p class="text-muted">
-                Loghează-te pentru a vedea recomandări personalizate.
+                Sign in to see personalized recommendations.
               </p>
               <UButton
                 to="/login"
-                label="Intră în cont"
+                label="Sign in"
               />
             </div>
 
@@ -134,11 +134,11 @@ const tabs = [
                 class="text-4xl text-muted"
               />
               <p class="text-muted">
-                Completează-ți profilul pentru recomandări personalizate.
+                Set up your profile for personalized recommendations.
               </p>
               <UButton
                 to="/onboarding"
-                label="Configurează profilul"
+                label="Set up profile"
                 icon="i-lucide-arrow-right"
                 trailing
               />

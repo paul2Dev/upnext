@@ -25,14 +25,14 @@ async function signInWithGoogle() {
             UpNext
           </h1>
           <p class="text-muted text-base">
-            Descoperă filmul perfect pentru seara asta
+            Find your perfect movie for tonight
           </p>
         </div>
 
         <UCard class="shadow-lg">
           <div class="space-y-4">
             <p class="text-sm text-center text-muted">
-              Autentifică-te pentru a-ți salva watchlist-ul și a primi recomandări personalizate
+              Sign in to save your watchlist and get personalized recommendations
             </p>
 
             <UButton
@@ -44,13 +44,13 @@ async function signInWithGoogle() {
               :loading="loading"
               @click="signInWithGoogle"
             >
-              Continuă cu Google
+              Continue with Google
             </UButton>
           </div>
         </UCard>
 
         <p class="text-center text-xs text-muted">
-          Poți naviga și fără cont, dar nu vei putea salva filme sau primi recomandări.
+          You can browse without an account, but you won't be able to save movies or get recommendations.
         </p>
       </div>
     </div>

@@ -20,7 +20,7 @@ const route = useRoute()
 const { data: collection, error } = await useFetch<Collection>(`/api/collection/${route.params.id}`)
 
 if (error.value) {
-  throw createError({ statusCode: 404, message: 'Colecție negăsită' })
+  throw createError({ statusCode: 404, message: 'Collection not found' })
 }
 
 useSeoMeta({ title: () => collection.value ? `${collection.value.name} — UpNext` : 'UpNext' })
@@ -75,7 +75,7 @@ const parts = computed(() =>
               variant="subtle"
               class="mb-2"
             >
-              Colecție · {{ parts.length }} filme
+              Collection · {{ parts.length }} movies
             </UBadge>
             <h1 class="text-3xl font-bold leading-tight">
               {{ collection.name }}
@@ -92,7 +92,7 @@ const parts = computed(() =>
 
       <div class="mt-10">
         <h2 class="text-lg font-semibold mb-6">
-          Filme din colecție
+          Movies in this collection
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <MovieCard

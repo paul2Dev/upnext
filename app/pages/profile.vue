@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
-useSeoMeta({ title: 'Profilul meu — UpNext' })
+useSeoMeta({ title: 'My Profile — UpNext' })
 
 interface Genre { id: number, name: string }
 interface WatchlistRow {
@@ -82,14 +82,14 @@ const mediaLink = (item: { media_type: string, movie_id?: number, id?: number })
     <section>
       <div class="flex items-center justify-between mb-5">
         <h2 class="text-xl font-bold">
-          Genuri favorite
+          Favorite Genres
         </h2>
         <UButton
           v-if="!editingGenres"
           variant="ghost"
           size="sm"
           icon="i-lucide-pencil"
-          label="Editează"
+          label="Edit"
           @click="startEditGenres"
         />
         <div
@@ -99,12 +99,12 @@ const mediaLink = (item: { media_type: string, movie_id?: number, id?: number })
           <UButton
             variant="ghost"
             size="sm"
-            label="Anulează"
+            label="Cancel"
             @click="editingGenres = false"
           />
           <UButton
             size="sm"
-            label="Salvează"
+            label="Save"
             icon="i-lucide-check"
             trailing
             :loading="savingGenres"
@@ -130,7 +130,7 @@ const mediaLink = (item: { media_type: string, movie_id?: number, id?: number })
           v-if="!preferredGenres.length"
           class="text-muted text-sm"
         >
-          Niciun gen selectat.
+          No genres selected.
         </span>
       </div>
 
@@ -153,10 +153,10 @@ const mediaLink = (item: { media_type: string, movie_id?: number, id?: number })
       </div>
     </section>
 
-    <!-- Filme văzute -->
+    <!-- Watched -->
     <section>
       <h2 class="text-xl font-bold mb-5">
-        Filme văzute
+        Watched
         <span class="text-muted font-normal text-base ml-2">{{ watched?.length ?? 0 }}</span>
       </h2>
 
@@ -164,7 +164,7 @@ const mediaLink = (item: { media_type: string, movie_id?: number, id?: number })
         v-if="!watched?.length"
         class="text-muted text-sm"
       >
-        Nu ai dat rating niciunui film încă.
+        You haven't rated anything yet.
       </div>
 
       <div
@@ -214,7 +214,7 @@ const mediaLink = (item: { media_type: string, movie_id?: number, id?: number })
         v-if="!watchlist?.length"
         class="text-muted text-sm"
       >
-        Watchlist-ul tău este gol.
+        Your watchlist is empty.
       </div>
 
       <div

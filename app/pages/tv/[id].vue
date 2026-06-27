@@ -53,7 +53,7 @@ const [{ data: show, error }, { data: similarData }] = await Promise.all([
 ])
 
 if (error.value) {
-  throw createError({ statusCode: 404, message: 'Serial negăsit' })
+  throw createError({ statusCode: 404, message: 'TV show not found' })
 }
 
 useSeoMeta({ title: () => show.value ? `${show.value.name} — UpNext` : 'UpNext' })
@@ -62,7 +62,7 @@ const { poster, backdrop } = useTmdbImage()
 
 const year = computed(() => show.value?.first_air_date?.slice(0, 4) ?? '—')
 const rating = computed(() => show.value?.vote_average?.toFixed(1) ?? '—')
-const voteCount = computed(() => show.value?.vote_count?.toLocaleString('ro-RO') ?? '0')
+const voteCount = computed(() => show.value?.vote_count?.toLocaleString('en-US') ?? '0')
 const creators = computed(() => show.value?.created_by?.map(c => c.name).join(', ') ?? null)
 const trailer = computed(() => show.value?.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube') ?? null)
 const cast = computed(() => show.value?.credits?.cast?.slice(0, 8) ?? [])
@@ -112,7 +112,7 @@ async function toggleSeason(seasonNumber: number) {
     v-if="show"
     class="relative"
   >
-    <!-- Backdrop absolut — se extinde în spatele conținutului -->
+    <!-- Backdrop -->
     <div class="absolute inset-x-0 top-0 h-130 sm:h-160 lg:h-190 overflow-hidden">
       <img
         v-if="show.backdrop_path"
@@ -123,7 +123,7 @@ async function toggleSeason(seasonNumber: number) {
       <div class="absolute inset-0 bg-linear-to-b from-black/20 via-default/75 to-default" />
     </div>
 
-    <!-- Conținut deasupra backdrop-ului faded -->
+    <!-- Content -->
     <div class="relative">
       <div class="h-52 sm:h-64" />
 
@@ -156,7 +156,7 @@ async function toggleSeason(seasonNumber: number) {
                   color="primary"
                   variant="subtle"
                 >
-                  Serial
+                  TV Show
                 </UBadge>
                 <UBadge
                   v-if="show.status"
@@ -178,7 +178,7 @@ async function toggleSeason(seasonNumber: number) {
               </p>
               <div class="flex flex-wrap items-center gap-3 mt-2 text-muted text-sm">
                 <span>{{ year }}</span>
-                <span>{{ show.number_of_seasons }} sez. · {{ show.number_of_episodes }} ep.</span>
+                <span>{{ show.number_of_seasons }} seasons · {{ show.number_of_episodes }} episodes</span>
                 <UBadge
                   color="neutral"
                   variant="solid"
@@ -196,7 +196,7 @@ async function toggleSeason(seasonNumber: number) {
                 v-if="creators"
                 class="text-sm mt-2"
               >
-                <span class="text-muted">Creat de: </span>
+                <span class="text-muted">Created by: </span>
                 <span class="font-medium">{{ creators }}</span>
               </p>
             </div>
@@ -226,7 +226,7 @@ async function toggleSeason(seasonNumber: number) {
                 size="sm"
                 @click="toggleWatchlist"
               >
-                {{ inWatchlist ? 'În watchlist' : 'Adaugă la watchlist' }}
+                {{ inWatchlist ? 'In watchlist' : 'Add to watchlist' }}
               </UButton>
 
               <RatingButton
@@ -268,7 +268,7 @@ async function toggleSeason(seasonNumber: number) {
           class="mt-10"
         >
           <h2 class="text-lg font-semibold mb-4">
-            Sezoane
+            Seasons
           </h2>
           <div class="space-y-2">
             <div
@@ -302,7 +302,7 @@ async function toggleSeason(seasonNumber: number) {
                     {{ season.name }}
                   </p>
                   <p class="text-sm text-muted">
-                    {{ season.episode_count }} episoade
+                    {{ season.episode_count }} episodes
                     <span v-if="season.air_date">· {{ season.air_date.slice(0, 4) }}</span>
                   </p>
                 </div>
@@ -321,7 +321,7 @@ async function toggleSeason(seasonNumber: number) {
                     name="i-lucide-loader-circle"
                     class="size-4 animate-spin inline mr-2"
                   />
-                  Se încarcă episoadele...
+                  Loading episodes...
                 </div>
                 <div
                   v-else-if="episodeCache[season.season_number]"
@@ -379,7 +379,7 @@ async function toggleSeason(seasonNumber: number) {
           class="mt-10"
         >
           <h2 class="text-lg font-semibold mb-4">
-            Distribuție
+            Cast
           </h2>
           <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
             <NuxtLink
@@ -420,7 +420,7 @@ async function toggleSeason(seasonNumber: number) {
           class="mt-10"
         >
           <h2 class="text-lg font-semibold mb-4">
-            Seriale similare
+            Similar Shows
           </h2>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <MediaCard

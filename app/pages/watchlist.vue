@@ -54,13 +54,13 @@ async function remove(item: WatchlistRow) {
         class="size-16 text-muted"
       />
       <p class="text-muted text-lg">
-        Nu ai nimic în watchlist încă.
+        Nothing in your watchlist yet.
       </p>
       <UButton
         to="/discover"
         variant="soft"
       >
-        Explorează filme
+        Browse movies
       </UButton>
     </div>
 

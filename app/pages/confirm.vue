@@ -23,7 +23,7 @@ onMounted(async () => {
           class="size-12 text-primary animate-pulse mx-auto"
         />
         <p class="text-muted">
-          Se autentifică...
+          Signing in...
         </p>
       </div>
     </div>

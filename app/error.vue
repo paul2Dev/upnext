@@ -8,13 +8,13 @@ const props = defineProps<{
 }>()
 
 const title = computed(() =>
-  props.error.statusCode === 404 ? 'Pagina nu a fost găsită' : 'A apărut o eroare'
+  props.error.statusCode === 404 ? 'Page not found' : 'An error occurred'
 )
 
 const description = computed(() =>
   props.error.statusCode === 404
-    ? 'Pagina pe care o cauți nu există sau a fost mutată.'
-    : (props.error.message ?? 'Ceva nu a mers bine. Încearcă din nou.')
+    ? 'The page you\'re looking for doesn\'t exist or has been moved.'
+    : (props.error.message ?? 'Something went wrong. Please try again.')
 )
 
 function goBack() {
@@ -39,13 +39,13 @@ function goBack() {
       <div class="flex gap-3">
         <UButton
           to="/"
-          label="Acasă"
+          label="Home"
           icon="i-lucide-home"
         />
         <UButton
           color="neutral"
           variant="outline"
-          label="Înapoi"
+          label="Back"
           icon="i-lucide-arrow-left"
           @click="goBack"
         />

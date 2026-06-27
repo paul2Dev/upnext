@@ -29,7 +29,7 @@ const [{ data: movie, error }, { data: similarData }] = await Promise.all([
 ])
 
 if (error.value) {
-  throw createError({ statusCode: 404, message: 'Film negăsit' })
+  throw createError({ statusCode: 404, message: 'Movie not found' })
 }
 
 useSeoMeta({ title: () => movie.value ? `${movie.value.title} — UpNext` : 'UpNext' })
@@ -45,7 +45,7 @@ const runtime = computed(() => {
   return m > 0 ? `${h}h ${m}m` : `${h}h`
 })
 const rating = computed(() => movie.value?.vote_average?.toFixed(1) ?? '—')
-const voteCount = computed(() => movie.value?.vote_count?.toLocaleString('ro-RO') ?? '0')
+const voteCount = computed(() => movie.value?.vote_count?.toLocaleString('en-US') ?? '0')
 const director = computed(() => movie.value?.credits?.crew?.find(c => c.job === 'Director')?.name ?? null)
 const trailer = computed(() => movie.value?.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube') ?? null)
 const cast = computed(() => movie.value?.credits?.cast?.slice(0, 8) ?? [])
@@ -74,7 +74,7 @@ const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleW
     v-if="movie"
     class="relative"
   >
-    <!-- Backdrop absolut — se extinde în spatele conținutului -->
+    <!-- Backdrop -->
     <div class="absolute inset-x-0 top-0 h-130 sm:h-160 lg:h-190 overflow-hidden">
       <img
         v-if="movie.backdrop_path"
@@ -85,7 +85,7 @@ const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleW
       <div class="absolute inset-0 bg-linear-to-b from-black/20 via-default/75 to-default" />
     </div>
 
-    <!-- Conținut deasupra backdrop-ului faded -->
+    <!-- Content -->
     <div class="relative">
       <div class="h-52 sm:h-64" />
 
@@ -142,7 +142,7 @@ const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleW
                 v-if="director"
                 class="text-sm mt-2"
               >
-                <span class="text-muted">Regizor: </span>
+                <span class="text-muted">Director: </span>
                 <span class="font-medium">{{ director }}</span>
               </p>
             </div>
@@ -184,7 +184,7 @@ const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleW
                 size="sm"
                 @click="toggleWatchlist"
               >
-                {{ inWatchlist ? 'În watchlist' : 'Adaugă la watchlist' }}
+                {{ inWatchlist ? 'In watchlist' : 'Add to watchlist' }}
               </UButton>
 
               <RatingButton
@@ -226,7 +226,7 @@ const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleW
           class="mt-10"
         >
           <h2 class="text-lg font-semibold mb-4">
-            Distribuție
+            Cast
           </h2>
           <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
             <NuxtLink
@@ -267,7 +267,7 @@ const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleW
           class="mt-10"
         >
           <h2 class="text-lg font-semibold mb-4">
-            Filme similare
+            Similar Movies
           </h2>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <MovieCard

@@ -34,7 +34,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: number] }>()
             name="i-lucide-loader-circle"
             class="size-4 animate-spin"
           />
-          <!-- Love this: două thumbs-up suprapuse -->
+          <!-- Love this: two overlapping thumbs-up -->
           <span
             v-else-if="option.value === 5"
             class="flex"

@@ -27,7 +27,7 @@ const route = useRoute()
 const { data: person, error } = await useFetch<Person>(`/api/person/${route.params.id}`)
 
 if (error.value) {
-  throw createError({ statusCode: 404, message: 'Persoană negăsită' })
+  throw createError({ statusCode: 404, message: 'Person not found' })
 }
 
 useSeoMeta({ title: () => person.value ? `${person.value.name} — UpNext` : 'UpNext' })
@@ -101,8 +101,8 @@ const biography = computed(() => {
                   name="i-lucide-calendar"
                   class="size-3 inline mr-1"
                 />
-                {{ new Date(person.birthday).toLocaleDateString('ro-RO') }}
-                <span v-if="age">({{ age }} ani)</span>
+                {{ new Date(person.birthday).toLocaleDateString('en-US') }}
+                <span v-if="age">({{ age }} years old)</span>
               </span>
               <span v-if="person.place_of_birth">
                 <UIcon
@@ -123,7 +123,7 @@ const biography = computed(() => {
               variant="link"
               size="sm"
               class="mt-1 px-0"
-              :label="bioShort ? 'Citește mai mult' : 'Restrânge'"
+              :label="bioShort ? 'Read more' : 'Show less'"
               @click="bioShort = !bioShort"
             />
           </div>
@@ -135,7 +135,7 @@ const biography = computed(() => {
         class="mt-10"
       >
         <h2 class="text-lg font-semibold mb-4">
-          Cunoscut din
+          Known for
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <MediaCard

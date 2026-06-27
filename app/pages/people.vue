@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Actori — UpNext' })
+useSeoMeta({ title: 'People — UpNext' })
 
 interface PersonItem {
   id: number
@@ -32,11 +32,11 @@ watch(search, () => {
   <UContainer class="py-10">
     <div class="flex items-center justify-between mb-6 gap-4">
       <h1 class="text-2xl font-bold shrink-0">
-        Actori
+        People
       </h1>
       <UInput
         v-model="search"
-        placeholder="Caută un actor sau regizor..."
+        placeholder="Search an actor or director..."
         icon="i-lucide-search"
         size="md"
         class="max-w-sm w-full"
@@ -108,7 +108,7 @@ watch(search, () => {
           name="i-lucide-user-x"
           class="size-12 mx-auto mb-3"
         />
-        <p>Niciun rezultat pentru „{{ search }}".</p>
+        <p>No results for "{{ search }}".</p>
       </div>
 
       <div

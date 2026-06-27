@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
-useSeoMeta({ title: 'UpNext — Configurează profilul tău' })
+useSeoMeta({ title: 'UpNext — Set Up Your Profile' })
 
 interface Genre { id: number, name: string }
 interface Movie {
@@ -98,10 +98,10 @@ async function finish() {
     <template v-if="step === 1">
       <div class="space-y-2 mb-8">
         <h1 class="text-3xl font-bold">
-          Ce genuri îți plac?
+          What genres do you like?
         </h1>
         <p class="text-muted">
-          Selectează cel puțin 3 genuri favorite.
+          Select at least 3 favorite genres.
         </p>
       </div>
 
@@ -121,10 +121,10 @@ async function finish() {
 
       <div class="flex items-center justify-between">
         <span class="text-sm text-muted">
-          {{ selectedGenres.length }} selectate
+          {{ selectedGenres.length }} selected
         </span>
         <UButton
-          label="Continuă"
+          label="Continue"
           icon="i-lucide-arrow-right"
           trailing
           :disabled="selectedGenres.length < 3"
@@ -137,10 +137,10 @@ async function finish() {
     <template v-else>
       <div class="space-y-2 mb-8">
         <h1 class="text-3xl font-bold">
-          Ai văzut vreunul din aceste filme?
+          Have you seen any of these movies?
         </h1>
         <p class="text-muted">
-          Ajută-ne să înțelegem gusturile tale. Poți sări peste acest pas.
+          Help us understand your taste. You can skip this step.
         </p>
       </div>
 
@@ -187,7 +187,7 @@ async function finish() {
 
           <!-- 3 buttons -->
           <div class="flex gap-1 justify-center">
-            <UTooltip text="Mi-a plăcut">
+            <UTooltip text="I liked it">
               <button
                 class="flex-1 py-1.5 rounded-md border text-xs font-medium transition-colors flex items-center justify-center"
                 :class="movieChoices[movie.id] === 5
@@ -202,7 +202,7 @@ async function finish() {
               </button>
             </UTooltip>
 
-            <UTooltip text="Nu prea">
+            <UTooltip text="Not for me">
               <button
                 class="flex-1 py-1.5 rounded-md border text-xs font-medium transition-colors flex items-center justify-center"
                 :class="movieChoices[movie.id] === 1
@@ -232,11 +232,11 @@ async function finish() {
             :disabled="saving"
             @click="finish"
           >
-            Sari peste
+            Skip
           </button>
         </div>
         <UButton
-          label="Gata"
+          label="Done"
           icon="i-lucide-check"
           trailing
           :loading="saving"
