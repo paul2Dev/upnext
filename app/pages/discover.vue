@@ -126,11 +126,11 @@ const years = Array.from({ length: 40 }, (_, i) => {
 <template>
   <UContainer class="py-8">
     <div class="space-y-6">
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold">
           Discover
         </h1>
-        <div class="flex rounded-lg overflow-hidden border border-default">
+        <div class="flex rounded-lg overflow-hidden border border-default self-start sm:self-auto">
           <button
             class="px-4 py-1.5 text-sm font-medium transition-colors"
             :class="mediaType === 'movie' ? 'bg-primary text-white' : 'text-muted hover:text-default'"

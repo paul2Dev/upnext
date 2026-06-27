@@ -87,7 +87,7 @@ const tabs = [
     <!-- CTA -->
     <div class="relative">
       <UContainer class="py-20 text-center space-y-4">
-        <h1 class="text-4xl font-bold text-white drop-shadow-lg">
+        <h1 class="text-2xl sm:text-4xl font-bold text-white drop-shadow-lg">
           Stop scrolling. Start watching.
         </h1>
         <p class="text-white/70 text-lg max-w-xl mx-auto drop-shadow">

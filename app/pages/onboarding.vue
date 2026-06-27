@@ -156,7 +156,7 @@ async function finish() {
 
       <div
         v-else
-        class="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-8"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8"
       >
         <div
           v-for="movie in popularMovies"
