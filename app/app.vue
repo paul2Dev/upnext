@@ -146,9 +146,7 @@ const userMenuItems = computed(() => [[
       </div>
     </Transition>
 
-    <UHeader>
-      <template #toggle />
-
+    <UHeader :ui="{ toggle: 'hidden' }">
       <template #left>
         <UButton
           class="md:hidden"
@@ -156,7 +154,7 @@ const userMenuItems = computed(() => [[
           variant="ghost"
           icon="i-lucide-menu"
           aria-label="Meniu"
-          @click="mobileMenuOpen = true"
+          @click="mobileMenuOpen = !mobileMenuOpen"
         />
 
         <NuxtLink
