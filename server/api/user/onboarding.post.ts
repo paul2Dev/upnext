@@ -3,6 +3,7 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 interface WatchedMovie {
   id: number
   media_type: 'movie' | 'tv'
+  rating?: number | null
   tmdb_data: Record<string, unknown>
 }
 
@@ -30,7 +31,7 @@ export default defineEventHandler(async (event) => {
       movie_id: m.id,
       media_type: m.media_type,
       tmdb_data: m.tmdb_data,
-      rating: null
+      rating: m.rating ?? null
     }))
 
     await client

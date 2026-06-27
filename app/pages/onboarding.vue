@@ -15,13 +15,17 @@ interface Movie {
 const step = ref(1)
 const saving = ref(false)
 const selectedGenres = ref<number[]>([])
-const selectedMovies = ref<Movie[]>([])
-const searchQuery = ref('')
-const searchResults = ref<Movie[]>([])
-const searching = ref(false)
+const movieChoices = ref<Record<number, 1 | 5>>({})
 
 const { data: genresData } = await useFetch<{ genres: Genre[] }>('/api/movies/genres')
 const genres = computed(() => genresData.value?.genres ?? [])
+
+const { data: popularData, execute: fetchPopular } = useLazyFetch<{ results: Movie[] }>('/api/movies/top-rated', { immediate: false })
+const popularMovies = computed(() => popularData.value?.results?.slice(0, 12) ?? [])
+
+watch(() => step.value, (s) => {
+  if (s === 2 && !popularData.value) fetchPopular()
+})
 
 function toggleGenre(id: number) {
   const idx = selectedGenres.value.indexOf(id)
@@ -33,57 +37,42 @@ function isGenreSelected(id: number) {
   return selectedGenres.value.includes(id)
 }
 
-let searchTimeout: ReturnType<typeof setTimeout>
-watch(searchQuery, (q) => {
-  clearTimeout(searchTimeout)
-  if (!q.trim()) {
-    searchResults.value = []
-    return
+function setChoice(movieId: number, choice: 1 | 5) {
+  if (movieChoices.value[movieId] === choice) {
+    movieChoices.value = Object.fromEntries(
+      Object.entries(movieChoices.value).filter(([k]) => Number(k) !== movieId)
+    ) as Record<number, 1 | 5>
+  } else {
+    movieChoices.value = { ...movieChoices.value, [movieId]: choice }
   }
-  searching.value = true
-  searchTimeout = setTimeout(async () => {
-    try {
-      const data = await $fetch<{ results: Movie[] }>('/api/movies/search', { params: { query: q } })
-      searchResults.value = data.results?.slice(0, 8) ?? []
-    } finally {
-      searching.value = false
-    }
-  }, 400)
-})
-
-function toggleMovie(movie: Movie) {
-  const idx = selectedMovies.value.findIndex(m => m.id === movie.id)
-  if (idx >= 0) selectedMovies.value.splice(idx, 1)
-  else selectedMovies.value.push(movie)
-}
-
-function isMovieSelected(id: number) {
-  return selectedMovies.value.some(m => m.id === id)
 }
 
 const posterUrl = (path: string | null) =>
-  path ? `https://image.tmdb.org/t/p/w200${path}` : null
+  path ? `https://image.tmdb.org/t/p/w300${path}` : null
 
 async function finish() {
   saving.value = true
   try {
+    const watchedMovies = popularMovies.value
+      .filter(m => movieChoices.value[m.id] !== undefined)
+      .map(m => ({
+        id: m.id,
+        media_type: 'movie' as const,
+        rating: movieChoices.value[m.id],
+        tmdb_data: {
+          title: m.title,
+          poster_path: m.poster_path,
+          genre_ids: m.genre_ids ?? [],
+          release_date: m.release_date,
+          vote_average: m.vote_average
+        }
+      }))
+
     await $fetch('/api/user/onboarding', {
       method: 'POST',
-      body: {
-        genres: selectedGenres.value,
-        watched_movies: selectedMovies.value.map(m => ({
-          id: m.id,
-          media_type: 'movie',
-          tmdb_data: {
-            title: m.title,
-            poster_path: m.poster_path,
-            genre_ids: m.genre_ids ?? [],
-            release_date: m.release_date,
-            vote_average: m.vote_average
-          }
-        }))
-      }
+      body: { genres: selectedGenres.value, watched_movies: watchedMovies }
     })
+
     const profileCache = useState('profile-cache')
     profileCache.value = null
     await navigateTo('/')
@@ -144,85 +133,91 @@ async function finish() {
       </div>
     </template>
 
-    <!-- Step 2: Seed movies -->
+    <!-- Step 2: Rate popular movies -->
     <template v-else>
       <div class="space-y-2 mb-8">
         <h1 class="text-3xl font-bold">
-          Filme pe care le-ai văzut deja
+          Ai văzut vreunul din aceste filme?
         </h1>
         <p class="text-muted">
-          Asta ne ajută să îți facem recomandări mai bune. Poți sări peste acest pas.
+          Ajută-ne să înțelegem gusturile tale. Poți sări peste acest pas.
         </p>
       </div>
 
-      <UInput
-        v-model="searchQuery"
-        placeholder="Caută un film..."
-        icon="i-lucide-search"
-        class="mb-4"
-        :loading="searching"
-      />
-
-      <!-- Search results -->
       <div
-        v-if="searchResults.length"
-        class="grid grid-cols-4 gap-3 mb-6"
+        v-if="!popularMovies.length"
+        class="flex justify-center py-16"
       >
-        <button
-          v-for="movie in searchResults"
-          :key="movie.id"
-          class="relative rounded-lg overflow-hidden border-2 transition-all"
-          :class="isMovieSelected(movie.id) ? 'border-primary' : 'border-transparent'"
-          @click="toggleMovie(movie)"
-        >
-          <img
-            v-if="posterUrl(movie.poster_path)"
-            :src="posterUrl(movie.poster_path)!"
-            :alt="movie.title"
-            class="w-full aspect-[2/3] object-cover"
-          >
-          <div
-            v-else
-            class="w-full aspect-[2/3] bg-elevated flex items-center justify-center text-xs text-muted p-2 text-center"
-          >
-            {{ movie.title }}
-          </div>
-          <div
-            v-if="isMovieSelected(movie.id)"
-            class="absolute inset-0 bg-primary/20 flex items-center justify-center"
-          >
-            <UIcon
-              name="i-lucide-check-circle"
-              class="text-primary text-2xl"
-            />
-          </div>
-          <div class="p-1 text-xs text-center truncate">
-            {{ movie.title }}
-          </div>
-        </button>
+        <UIcon
+          name="i-lucide-loader-circle"
+          class="text-3xl text-muted animate-spin"
+        />
       </div>
 
-      <!-- Selected movies chips -->
       <div
-        v-if="selectedMovies.length"
-        class="flex flex-wrap gap-2 mb-8"
+        v-else
+        class="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-8"
       >
-        <span
-          v-for="movie in selectedMovies"
+        <div
+          v-for="movie in popularMovies"
           :key="movie.id"
-          class="flex items-center gap-1 px-3 py-1 bg-elevated rounded-full text-sm"
+          class="flex flex-col gap-2"
         >
-          {{ movie.title }}
-          <button
-            class="text-muted hover:text-default"
-            @click="toggleMovie(movie)"
-          >
-            <UIcon
-              name="i-lucide-x"
-              class="text-xs"
+          <!-- Poster -->
+          <div class="relative rounded-lg overflow-hidden">
+            <img
+              v-if="posterUrl(movie.poster_path)"
+              :src="posterUrl(movie.poster_path)!"
+              :alt="movie.title"
+              class="w-full aspect-2/3 object-cover"
+            >
+            <div
+              v-else
+              class="w-full aspect-2/3 bg-elevated flex items-center justify-center text-xs text-muted p-2 text-center"
+            >
+              {{ movie.title }}
+            </div>
+            <!-- Selected overlay -->
+            <div
+              v-if="movieChoices[movie.id]"
+              class="absolute inset-0 flex items-center justify-center"
+              :class="movieChoices[movie.id] === 5 ? 'bg-green-500/20' : 'bg-red-500/20'"
             />
-          </button>
-        </span>
+          </div>
+
+          <!-- 3 buttons -->
+          <div class="flex gap-1 justify-center">
+            <UTooltip text="Mi-a plăcut">
+              <button
+                class="flex-1 py-1.5 rounded-md border text-xs font-medium transition-colors flex items-center justify-center"
+                :class="movieChoices[movie.id] === 5
+                  ? 'bg-green-500/20 border-green-400 text-green-400'
+                  : 'border-default text-muted hover:border-green-400/50 hover:text-green-400'"
+                @click="setChoice(movie.id, 5)"
+              >
+                <UIcon
+                  name="i-lucide-thumbs-up"
+                  class="size-3.5"
+                />
+              </button>
+            </UTooltip>
+
+            <UTooltip text="Nu prea">
+              <button
+                class="flex-1 py-1.5 rounded-md border text-xs font-medium transition-colors flex items-center justify-center"
+                :class="movieChoices[movie.id] === 1
+                  ? 'bg-red-500/20 border-red-400 text-red-400'
+                  : 'border-default text-muted hover:border-red-400/50 hover:text-red-400'"
+                @click="setChoice(movie.id, 1)"
+              >
+                <UIcon
+                  name="i-lucide-thumbs-down"
+                  class="size-3.5"
+                />
+              </button>
+            </UTooltip>
+          </div>
+        </div>
       </div>
 
       <div class="flex items-center justify-between">
