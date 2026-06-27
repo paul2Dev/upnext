@@ -27,6 +27,17 @@ const userMenuItems = computed(() => [[
   }
 ], [
   {
+    label: 'Profilul meu',
+    icon: 'i-lucide-user',
+    to: '/profile'
+  },
+  {
+    label: 'Preferințe',
+    icon: 'i-lucide-settings',
+    to: '/onboarding'
+  }
+], [
+  {
     label: 'Deconectare',
     icon: 'i-lucide-log-out',
     onSelect: async () => {
