@@ -6,11 +6,17 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const user = useSupabaseUser()
   if (!user.value) return
 
-  const profileCache = useState<{ onboarding_done: boolean } | null>('profile-cache', () => null)
+  const profileCache = useState<{ onboarding_done: boolean, preferred_genres?: number[] } | null>('profile-cache', () => null)
 
   if (!profileCache.value) {
     try {
-      profileCache.value = await $fetch('/api/user/profile')
+      const supabase = useSupabaseClient()
+      const { data } = await supabase
+        .from('profiles')
+        .select('onboarding_done, preferred_genres')
+        .eq('id', user.value.id)
+        .single()
+      if (data) profileCache.value = data
     } catch {
       return
     }
