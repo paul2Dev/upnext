@@ -79,7 +79,7 @@ const { data, pending } = await useFetch<MediaListResponse>(() => {
     if (isSearching.value) {
       return `/api/collections/search?query=${encodeURIComponent(search.value)}&page=${page.value}`
     }
-    return `/api/collections/popular?page=${page.value}`
+    return `/api/collections/popular`
   }
   const base = isMovie.value ? '/api/movies' : '/api/tv'
   if (isSearching.value) {
