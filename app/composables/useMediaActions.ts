@@ -80,12 +80,21 @@ export function useMediaActions(mediaId: number, mediaType: 'movie' | 'tv', tmdb
     if (!user.value || loadingWatched.value) return
     loadingWatched.value = true
     try {
-      await $fetch('/api/user/ratings', {
-        method: 'POST',
-        body: { movie_id: mediaId, media_type: mediaType, rating, tmdb_data: tmdbData }
-      })
-      userRating.value = rating
-      isWatched.value = true
+      if (userRating.value === rating) {
+        await $fetch('/api/user/ratings', {
+          method: 'DELETE',
+          body: { movie_id: mediaId, media_type: mediaType }
+        })
+        userRating.value = null
+        isWatched.value = false
+      } else {
+        await $fetch('/api/user/ratings', {
+          method: 'POST',
+          body: { movie_id: mediaId, media_type: mediaType, rating, tmdb_data: tmdbData }
+        })
+        userRating.value = rating
+        isWatched.value = true
+      }
     } finally {
       loadingWatched.value = false
     }

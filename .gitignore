@@ -25,3 +25,6 @@ logs
 
 # Claude Code context file (local only)
 CLAUDE.md
+
+# Local documentation (not tracked)
+docs/

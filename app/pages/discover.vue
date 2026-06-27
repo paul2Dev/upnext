@@ -43,6 +43,8 @@ interface CollectionItem {
   overview: string
 }
 
+const profileCache = useState<{ preferred_genres?: number[] } | null>('profile-cache')
+
 const mediaType = ref<'movie' | 'tv' | 'collection'>('movie')
 const isMovie = computed(() => mediaType.value === 'movie')
 const isCollection = computed(() => mediaType.value === 'collection')
@@ -63,11 +65,19 @@ const genres = computed(() =>
 const sortOptions = computed(() => isMovie.value ? MOVIE_SORT_OPTIONS : TV_SORT_OPTIONS)
 
 const search = ref('')
-const selectedGenre = ref<string | undefined>(undefined)
 const selectedProvider = ref<string | undefined>(undefined)
 const selectedSort = ref('popularity.desc')
 const selectedYear = ref<string | undefined>(undefined)
 const page = ref(1)
+
+function preferredGenreForCurrent() {
+  const prefs = profileCache.value?.preferred_genres ?? []
+  const available = genres.value.map(g => g.value)
+  const match = prefs.find(id => available.includes(String(id)))
+  return match ? String(match) : undefined
+}
+
+const selectedGenre = ref<string | undefined>(preferredGenreForCurrent())
 
 const isSearching = computed(() => search.value.trim().length > 0)
 
@@ -103,7 +113,7 @@ watch([search, selectedGenre, selectedProvider, selectedSort, selectedYear, medi
 })
 
 watch(mediaType, () => {
-  selectedGenre.value = undefined
+  selectedGenre.value = preferredGenreForCurrent()
   selectedProvider.value = undefined
   selectedYear.value = undefined
   selectedSort.value = 'popularity.desc'

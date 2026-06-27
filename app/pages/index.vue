@@ -9,15 +9,6 @@ interface MovieItem {
   vote_average: number
   overview: string
 }
-interface TvItem {
-  id: number
-  name: string
-  poster_path: string | null
-  first_air_date: string
-  vote_average: number
-  overview: string
-  media_type: 'tv'
-}
 interface AllItem {
   id: number
   media_type: 'movie' | 'tv' | 'person'
@@ -33,11 +24,9 @@ interface AllItem {
 const user = useSupabaseUser()
 const profileCache = useState<{ onboarding_done: boolean } | null>('profile-cache')
 
-const [{ data: trendingData }, { data: upcomingData }, { data: topRatedData }, { data: tvTrendingData }, { data: allTrendingData }] = await Promise.all([
-  useFetch<{ results: MovieItem[] }>('/api/movies/trending'),
+const [{ data: upcomingData }, { data: topRatedData }, { data: allTrendingData }] = await Promise.all([
   useFetch<{ results: MovieItem[] }>('/api/movies/upcoming'),
   useFetch<{ results: MovieItem[] }>('/api/movies/top-rated'),
-  useFetch<{ results: TvItem[] }>('/api/tv/trending'),
   useFetch<{ results: AllItem[] }>('/api/trending/all')
 ])
 
@@ -52,10 +41,8 @@ watch(
   { immediate: true }
 )
 
-const trendingMovies = computed(() => trendingData.value?.results?.slice(0, 18) ?? [])
 const upcomingMovies = computed(() => upcomingData.value?.results?.slice(0, 18) ?? [])
 const topRatedMovies = computed(() => topRatedData.value?.results?.slice(0, 18) ?? [])
-const tvTrending = computed(() => (tvTrendingData.value?.results ?? []).slice(0, 18).map(s => ({ ...s, media_type: 'tv' as const })))
 const allTrending = computed(() => (allTrendingData.value?.results ?? []).filter(i => i.media_type !== 'person').slice(0, 18))
 const recommendations = computed(() => (recommendationsData.value as { results: MovieItem[] } | null)?.results ?? [])
 
@@ -64,8 +51,6 @@ const onboardingDone = computed(() => !!profileCache.value?.onboarding_done)
 const tabs = [
   { label: 'Pentru tine', slot: 'foryou' as const },
   { label: 'Trending', slot: 'all' as const },
-  { label: 'Filme', slot: 'trending' as const },
-  { label: 'Seriale', slot: 'tv' as const },
   { label: 'În curând', slot: 'upcoming' as const },
   { label: 'Cele mai bune', slot: 'top-rated' as const }
 ]
@@ -152,26 +137,6 @@ const tabs = [
               v-for="item in allTrending"
               :key="`${item.media_type}-${item.id}`"
               :item="item"
-            />
-          </div>
-        </template>
-
-        <template #trending>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-6">
-            <MovieCard
-              v-for="movie in trendingMovies"
-              :key="movie.id"
-              :movie="movie"
-            />
-          </div>
-        </template>
-
-        <template #tv>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-6">
-            <MediaCard
-              v-for="show in tvTrending"
-              :key="show.id"
-              :item="show"
             />
           </div>
         </template>
