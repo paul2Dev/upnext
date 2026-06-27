@@ -59,7 +59,7 @@ const onboardingDone = computed(() => !!profileCache.value?.onboarding_done)
 const tabs = [
   { label: 'For You', slot: 'foryou' as const },
   { label: 'Trending', slot: 'all' as const },
-  { label: 'Coming Soon', slot: 'upcoming' as const },
+  { label: 'Upcoming', slot: 'upcoming' as const },
   { label: 'Top Rated', slot: 'top-rated' as const }
 ]
 </script>
@@ -103,7 +103,10 @@ const tabs = [
     </div>
 
     <UContainer class="relative py-10">
-      <UTabs :items="tabs">
+      <UTabs
+        :items="tabs"
+        :ui="{ trigger: 'px-2 sm:px-4 text-xs sm:text-sm' }"
+      >
         <template #foryou>
           <div class="pt-6">
             <!-- Not logged in -->
