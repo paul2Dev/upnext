@@ -26,6 +26,14 @@ export default defineEventHandler(async (event) => {
   if (profileError) throw createError({ statusCode: 500, message: profileError.message })
 
   if (body.watched_movies?.length) {
+    const movieIds = body.watched_movies.map(m => m.id)
+
+    await client
+      .from('watched')
+      .delete()
+      .eq('user_id', user.id)
+      .in('movie_id', movieIds)
+
     const rows = body.watched_movies.map(m => ({
       user_id: user.id,
       movie_id: m.id,
@@ -34,9 +42,8 @@ export default defineEventHandler(async (event) => {
       rating: m.rating ?? null
     }))
 
-    await client
-      .from('watched')
-      .upsert(rows, { onConflict: 'user_id,movie_id,media_type', ignoreDuplicates: true })
+    const { error: watchedError } = await client.from('watched').insert(rows)
+    if (watchedError) throw createError({ statusCode: 500, message: watchedError.message })
   }
 
   return { success: true }
