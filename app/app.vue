@@ -18,6 +18,19 @@ const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const route = useRoute()
 
+const profileCache = useState<{ onboarding_done: boolean, preferred_genres?: number[] } | null>('profile-cache', () => null)
+
+watch(user, async (u) => {
+  if (u && !profileCache.value) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('onboarding_done, preferred_genres')
+      .eq('id', u.id)
+      .single()
+    if (data) profileCache.value = data
+  }
+}, { immediate: true })
+
 const mobileMenuOpen = ref(false)
 watch(() => route.path, () => {
   mobileMenuOpen.value = false
