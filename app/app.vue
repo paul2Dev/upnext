@@ -14,6 +14,8 @@ useSeoMeta({
   description: 'Personal watchlist, recommendations based on your taste and streaming platform availability.'
 })
 
+const { $pwa } = useNuxtApp()
+
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const route = useRoute()
@@ -193,6 +195,16 @@ const userMenuItems = computed(() => [[
       </template>
 
       <template #right>
+        <UButton
+          v-if="$pwa?.showInstallPrompt && !$pwa?.isPWAInstalled"
+          icon="i-lucide-download"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          aria-label="Install app"
+          @click="$pwa?.install()"
+        />
+
         <UColorModeButton />
 
         <template v-if="user">
