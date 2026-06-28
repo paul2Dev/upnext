@@ -124,10 +124,10 @@ const tabs = [
     <div class="relative min-h-[calc(100svh-478px)] sm:min-h-[48vh] flex flex-col justify-center">
       <UContainer class="py-8 text-center space-y-3">
         <h1 class="text-2xl sm:text-4xl font-bold text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">
-          Stop scrolling. Start watching.
+          Your personal movie guide.
         </h1>
         <p class="text-white/90 text-base max-w-xl mx-auto [text-shadow:0_1px_6px_rgba(0,0,0,0.9)]">
-          Rate what you've seen, discover what's next, and never waste an evening on a bad pick again.
+          Track what you've watched, discover what to watch next, and find where to stream it — all in one place.
         </p>
         <QuickSearch class="mt-2" />
         <NuxtLink
