@@ -52,16 +52,16 @@ function dismiss() {
           <p class="text-sm font-semibold leading-tight">
             Install UpNext
           </p>
-          <p class="text-xs text-muted mt-1 leading-relaxed">
-            Tap
-            <span class="inline-flex items-center gap-0.5 align-middle">
-              <UIcon
+          <ol class="text-xs text-muted mt-1.5 leading-relaxed space-y-0.5 list-none">
+            <li>
+              1. Tap <UIcon
                 name="i-lucide-share"
-                class="size-3.5"
-              />
-            </span>
-            then <strong>"Add to Home Screen"</strong> to install the app.
-          </p>
+                class="size-3.5 inline align-middle"
+              /> <strong>Share</strong> in the Safari toolbar
+            </li>
+            <li>2. Scroll down in the menu that opens</li>
+            <li>3. Tap <strong>"Add to Home Screen"</strong></li>
+          </ol>
         </div>
       </div>
 
