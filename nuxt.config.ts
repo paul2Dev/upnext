@@ -13,6 +13,12 @@ export default defineNuxtConfig({
     enabled: true
   },
 
+  app: {
+    head: {
+      link: [{ rel: 'manifest', href: '/manifest.webmanifest' }]
+    }
+  },
+
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
@@ -58,7 +64,7 @@ export default defineNuxtConfig({
       globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}']
     },
     client: {
-      installPrompt: true
+      installPrompt: false
     }
   },
 
