@@ -22,6 +22,13 @@ interface Episode {
   overview: string
   vote_average: number
 }
+interface WatchProvider { provider_id: number, provider_name: string, logo_path: string }
+interface WatchProviders {
+  link?: string
+  flatrate?: WatchProvider[]
+  rent?: WatchProvider[]
+  buy?: WatchProvider[]
+}
 interface TvShow {
   id: number
   name: string
@@ -41,6 +48,7 @@ interface TvShow {
   seasons: Season[]
   credits: { cast: CastMember[], crew: CrewMember[] }
   videos: { results: Video[] }
+  watch_providers: WatchProviders | null
 }
 interface TvItem { id: number, name: string, poster_path: string | null, first_air_date: string, vote_average: number, overview: string, media_type: 'tv' }
 
@@ -244,6 +252,51 @@ async function toggleSeason(seasonNumber: number) {
               {{ show.overview }}
             </p>
           </div>
+        </div>
+
+        <!-- Where to Watch -->
+        <div class="mt-10">
+          <h2 class="text-lg font-semibold mb-3">
+            Where to Watch
+          </h2>
+          <template v-if="show.watch_providers?.flatrate?.length">
+            <div class="flex flex-wrap gap-1.5">
+              <a
+                v-for="p in show.watch_providers.flatrate"
+                :key="p.provider_id"
+                :href="show.watch_providers.link"
+                :title="p.provider_name"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="size-9 rounded-lg overflow-hidden ring-1 ring-default hover:ring-primary transition-all shrink-0"
+              >
+                <img
+                  :src="poster(p.logo_path, 'w185')"
+                  :alt="p.provider_name"
+                  class="w-full h-full object-cover"
+                >
+              </a>
+            </div>
+            <p class="text-xs text-muted mt-3">
+              Based on your location · Data by
+              <a
+                href="https://www.justwatch.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="hover:text-default transition-colors"
+              >JustWatch</a>
+            </p>
+          </template>
+          <p
+            v-else
+            class="text-sm text-muted flex items-center gap-2"
+          >
+            <UIcon
+              name="i-lucide-tv-off"
+              class="size-4 shrink-0"
+            />
+            Not available for streaming in your region.
+          </p>
         </div>
 
         <div
