@@ -60,8 +60,10 @@ export default defineNuxtConfig({
       ]
     },
     workbox: {
-      globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
-      cleanupOutdatedCaches: true
+      globPatterns: ['**/*.{css,png,svg,ico,woff2}'],
+      cleanupOutdatedCaches: true,
+      skipWaiting: true,
+      clientsClaim: true
     },
     client: {
       installPrompt: true
