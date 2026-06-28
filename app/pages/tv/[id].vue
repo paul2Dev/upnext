@@ -76,7 +76,8 @@ const tmdbData = computed(() => ({
   poster_path: show.value!.poster_path,
   first_air_date: show.value!.first_air_date,
   vote_average: show.value!.vote_average,
-  overview: show.value!.overview
+  overview: show.value!.overview,
+  number_of_seasons: show.value!.number_of_seasons ?? undefined
 }))
 
 const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleWatchlist, setRating } = useMediaActions(

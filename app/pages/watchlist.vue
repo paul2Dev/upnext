@@ -8,6 +8,8 @@ interface TmdbData {
   release_date?: string
   first_air_date?: string
   vote_average?: number
+  runtime?: number
+  number_of_seasons?: number
 }
 
 interface WatchlistRow {
@@ -93,6 +95,24 @@ async function markAsWatched(rating: number) {
   } finally {
     markingWatched.value = false
   }
+}
+
+function formatRuntime(mins: number): string {
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  if (h === 0) return `${m}m`
+  if (m === 0) return `${h}h`
+  return `${h}h ${m}m`
+}
+
+function formatRelativeDate(dateStr: string): string {
+  const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000)
+  if (days === 0) return 'Added today'
+  if (days === 1) return 'Added yesterday'
+  if (days < 7) return `Added ${days} days ago`
+  if (days < 30) return `Added ${Math.floor(days / 7)}w ago`
+  if (days < 365) return `Added ${Math.floor(days / 30)}mo ago`
+  return `Added ${Math.floor(days / 365)}y ago`
 }
 
 const pendingTitle = computed(() => {
@@ -187,6 +207,17 @@ const pendingTitle = computed(() => {
         class="relative group"
       >
         <MediaCard :item="{ ...item.tmdb_data, media_type: item.media_type as 'movie' | 'tv' }" />
+
+        <div class="px-0.5 mt-0.5 flex items-center gap-1 text-[11px] text-muted leading-tight">
+          <span v-if="item.tmdb_data.runtime">{{ formatRuntime(item.tmdb_data.runtime) }}</span>
+          <span v-else-if="item.tmdb_data.number_of_seasons">
+            {{ item.tmdb_data.number_of_seasons }} {{ item.tmdb_data.number_of_seasons === 1 ? 'season' : 'seasons' }}
+          </span>
+          <template v-if="item.tmdb_data.runtime || item.tmdb_data.number_of_seasons">
+            <span class="opacity-40">·</span>
+          </template>
+          <span class="truncate">{{ formatRelativeDate(item.added_at) }}</span>
+        </div>
 
         <!-- Remove button -->
         <button

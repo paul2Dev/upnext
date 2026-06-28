@@ -209,16 +209,36 @@ const userMenuItems = computed(() => [[
         </div>
 
         <nav class="hidden md:flex items-center gap-1 ml-6">
-          <UButton
+          <template
             v-for="link in navLinks"
             :key="link.to"
-            :to="link.to"
-            :icon="link.icon"
-            :label="link.label"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-          />
+          >
+            <div
+              v-if="link.to === '/watchlist' && user && watchlistCount > 0"
+              class="relative"
+            >
+              <UButton
+                :to="link.to"
+                :icon="link.icon"
+                :label="link.label"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+              />
+              <span class="absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-0.5 pointer-events-none leading-none">
+                {{ watchlistCount > 99 ? '99+' : watchlistCount }}
+              </span>
+            </div>
+            <UButton
+              v-else
+              :to="link.to"
+              :icon="link.icon"
+              :label="link.label"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+            />
+          </template>
         </nav>
       </template>
 

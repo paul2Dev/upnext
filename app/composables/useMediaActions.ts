@@ -8,6 +8,8 @@ interface TmdbData {
   first_air_date?: string
   vote_average?: number
   overview?: string
+  runtime?: number
+  number_of_seasons?: number
 }
 
 interface WatchlistRow {

@@ -59,7 +59,8 @@ const tmdbData = computed(() => ({
   release_date: movie.value!.release_date,
   vote_average: movie.value!.vote_average,
   overview: movie.value!.overview,
-  genre_ids: movie.value!.genres?.map(g => g.id) ?? []
+  genre_ids: movie.value!.genres?.map(g => g.id) ?? [],
+  runtime: movie.value!.runtime ?? undefined
 }))
 
 const { user, inWatchlist, userRating, loadingWatchlist, loadingWatched, toggleWatchlist, setRating } = useMediaActions(
