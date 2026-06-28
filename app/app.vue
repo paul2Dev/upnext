@@ -280,6 +280,8 @@ const userMenuItems = computed(() => [[
       <NuxtPage />
     </UMain>
 
+    <IOSInstallBanner />
+
     <UFooter>
       <template #left>
         <p class="text-sm text-muted">
