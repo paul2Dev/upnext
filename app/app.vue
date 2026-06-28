@@ -176,7 +176,7 @@ const userMenuItems = computed(() => [[
       </div>
     </Transition>
 
-    <UHeader :ui="{ toggle: 'hidden' }">
+    <UHeader :toggle="false">
       <template #left>
         <UButton
           class="md:hidden"
