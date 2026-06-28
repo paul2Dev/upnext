@@ -52,7 +52,7 @@ const link = computed(() => {
         />
       </div>
 
-      <div class="absolute top-2 right-2">
+      <div class="absolute bottom-2 right-2">
         <UBadge
           v-if="item.vote_average"
           color="neutral"
