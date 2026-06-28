@@ -67,7 +67,7 @@ const tabs = [
 <template>
   <div class="relative">
     <!-- Backdrop -->
-    <div class="absolute inset-x-0 top-0 h-140 sm:h-160 lg:h-180 overflow-hidden">
+    <div class="absolute inset-x-0 top-0 h-100 sm:h-120 lg:h-140 overflow-hidden">
       <Transition
         enter-active-class="transition-opacity duration-1000"
         enter-from-class="opacity-0"
@@ -81,16 +81,16 @@ const tabs = [
           class="w-full h-full object-cover object-top"
         >
       </Transition>
-      <div class="absolute inset-0 bg-linear-to-b from-black/20 via-default/60 to-default" />
+      <div class="absolute inset-0 bg-linear-to-b from-black/50 via-black/40 to-default" />
     </div>
 
-    <!-- CTA -->
-    <div class="relative">
-      <UContainer class="py-20 text-center space-y-4">
-        <h1 class="text-2xl sm:text-4xl font-bold text-white drop-shadow-lg">
+    <!-- CTA: min-h fills viewport minus header(~64px) + tabs area(~80px) + one card row(~296px) -->
+    <div class="relative min-h-[calc(100svh-478px)] sm:min-h-0 flex flex-col justify-center">
+      <UContainer class="py-8 text-center space-y-3">
+        <h1 class="text-2xl sm:text-4xl font-bold text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">
           Stop scrolling. Start watching.
         </h1>
-        <p class="text-white/70 text-lg max-w-xl mx-auto drop-shadow">
+        <p class="text-white/90 text-base max-w-xl mx-auto [text-shadow:0_1px_6px_rgba(0,0,0,0.9)]">
           Rate what you've seen, discover what's next, and never waste an evening on a bad pick again.
         </p>
         <UButton
@@ -102,7 +102,7 @@ const tabs = [
       </UContainer>
     </div>
 
-    <UContainer class="relative py-10">
+    <UContainer class="relative pt-4 pb-10">
       <UTabs
         :items="tabs"
         :ui="{ trigger: 'px-2 sm:px-4 text-xs sm:text-sm' }"
