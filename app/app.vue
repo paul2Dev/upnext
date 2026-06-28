@@ -44,6 +44,17 @@ const navLinks = [
   { label: 'Watchlist', to: '/watchlist', icon: 'i-lucide-bookmark' }
 ]
 
+const watchlistCount = useState<number>('watchlist-count', () => 0)
+
+watch(user, async (u) => {
+  if (u) {
+    const data = await $fetch<{ id: string }[]>('/api/user/watchlist').catch(() => [])
+    watchlistCount.value = data?.length ?? 0
+  } else {
+    watchlistCount.value = 0
+  }
+}, { immediate: true })
+
 const userMenuItems = computed(() => [[
   {
     label: user.value?.email ?? '',
@@ -179,6 +190,23 @@ const userMenuItems = computed(() => [[
         <NuxtLink to="/">
           <AppLogo />
         </NuxtLink>
+
+        <div class="relative md:hidden ml-1">
+          <UButton
+            to="/watchlist"
+            icon="i-lucide-bookmark"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            aria-label="Watchlist"
+          />
+          <span
+            v-if="user && watchlistCount > 0"
+            class="absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-0.5 pointer-events-none leading-none"
+          >
+            {{ watchlistCount > 99 ? '99+' : watchlistCount }}
+          </span>
+        </div>
 
         <nav class="hidden md:flex items-center gap-1 ml-6">
           <UButton
