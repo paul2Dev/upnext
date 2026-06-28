@@ -114,6 +114,7 @@ watch(mediaType, () => {
   selectedYear.value = undefined
   selectedSort.value = 'popularity.desc'
   search.value = ''
+  filtersOpen.value = false
 })
 
 const currentYear = new Date().getFullYear()
@@ -121,6 +122,25 @@ const years = Array.from({ length: 40 }, (_, i) => {
   const y = String(currentYear - i)
   return { label: y, value: y }
 })
+
+const filtersOpen = ref(false)
+
+const activeFilterCount = computed(() => {
+  if (isCollection.value) return 0
+  let count = 0
+  if (selectedGenre.value) count++
+  if (isMovie.value && selectedProvider.value) count++
+  if (selectedYear.value) count++
+  if (selectedSort.value !== 'popularity.desc') count++
+  return count
+})
+
+function clearFilters() {
+  selectedGenre.value = preferredGenreForCurrent()
+  selectedProvider.value = undefined
+  selectedYear.value = undefined
+  selectedSort.value = 'popularity.desc'
+}
 </script>
 
 <template>
@@ -155,13 +175,100 @@ const years = Array.from({ length: 40 }, (_, i) => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- Mobile filters -->
+      <div class="sm:hidden space-y-2">
+        <div class="flex gap-2">
+          <UInput
+            v-model="search"
+            :placeholder="isCollection ? 'Search a collection...' : isMovie ? 'Search a movie...' : 'Search a TV show...'"
+            icon="i-lucide-search"
+            size="md"
+            class="flex-1"
+          />
+          <button
+            v-if="!isCollection"
+            class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-default text-sm font-medium transition-colors hover:bg-elevated shrink-0"
+            :class="filtersOpen ? 'bg-elevated' : ''"
+            @click="filtersOpen = !filtersOpen"
+          >
+            <UIcon
+              name="i-lucide-sliders-horizontal"
+              class="size-4"
+            />
+            <span>Filters</span>
+            <span
+              v-if="activeFilterCount > 0"
+              class="inline-flex items-center justify-center size-5 rounded-full bg-primary text-white text-xs font-bold"
+            >{{ activeFilterCount }}</span>
+          </button>
+        </div>
+
+        <Transition
+          enter-active-class="transition-all duration-200 ease-out"
+          enter-from-class="opacity-0 -translate-y-1"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition-all duration-150 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-1"
+        >
+          <div
+            v-if="filtersOpen && !isCollection"
+            class="space-y-2 p-3 rounded-lg border border-default bg-elevated"
+          >
+            <USelect
+              v-model="selectedGenre"
+              :items="genres"
+              placeholder="Genre"
+              size="md"
+              :disabled="isSearching"
+            />
+
+            <USelect
+              v-if="isMovie"
+              v-model="selectedProvider"
+              :items="STREAMING_PROVIDERS"
+              placeholder="Platform"
+              size="md"
+              :disabled="isSearching"
+            />
+
+            <div class="flex gap-2">
+              <USelect
+                v-model="selectedYear"
+                :items="years"
+                placeholder="Year"
+                size="md"
+                class="flex-1"
+                :disabled="isSearching"
+              />
+              <USelect
+                v-model="selectedSort"
+                :items="sortOptions"
+                size="md"
+                class="flex-1"
+                :disabled="isSearching"
+              />
+            </div>
+
+            <button
+              v-if="activeFilterCount > 0"
+              class="text-xs text-muted hover:text-default transition-colors"
+              @click="clearFilters"
+            >
+              Clear filters
+            </button>
+          </div>
+        </Transition>
+      </div>
+
+      <!-- Desktop filters (sm+) -->
+      <div class="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <UInput
           v-model="search"
           :placeholder="isCollection ? 'Search a collection (e.g. Marvel, Dark Knight)...' : isMovie ? 'Search a movie...' : 'Search a TV show...'"
           icon="i-lucide-search"
           size="md"
-          :class="isCollection ? 'lg:col-span-4' : 'lg:col-span-1'"
+          :class="isCollection ? 'sm:col-span-2 lg:col-span-4' : 'lg:col-span-1'"
         />
 
         <template v-if="!isCollection">
