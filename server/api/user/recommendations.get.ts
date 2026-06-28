@@ -49,18 +49,22 @@ export default defineEventHandler(async (event) => {
     .slice(0, 5)
     .map(([id]) => Number(id))
 
+  const randomPage = Math.floor(Math.random() * 5) + 1
+
   if (!topGenres.length) {
-    return tmdbFetch('/movie/popular', { page: 1 })
+    return tmdbFetch('/movie/popular', { page: randomPage })
   }
 
   const data = await tmdbFetch<{ results: TmdbMovie[] }>('/discover/movie', {
     sort_by: 'popularity.desc',
     with_genres: topGenres.join('|'),
     include_adult: false,
-    page: 1
+    page: randomPage
   })
 
-  const results = (data.results ?? []).filter(m => !watchedMovieIds.has(m.id))
+  const results = (data.results ?? [])
+    .filter(m => !watchedMovieIds.has(m.id))
+    .sort(() => Math.random() - 0.5)
 
   return { results: results.slice(0, 20) }
 })
