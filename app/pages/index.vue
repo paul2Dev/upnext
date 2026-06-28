@@ -47,10 +47,29 @@ const upcomingMovies = computed(() => upcomingData.value?.results?.slice(0, 18) 
 const topRatedMovies = computed(() => topRatedData.value?.results?.slice(0, 18) ?? [])
 const allTrending = computed(() => (allTrendingData.value?.results ?? []).filter(i => i.media_type !== 'person').slice(0, 18))
 
-const heroItem = computed(() => {
-  const items = (allTrendingData.value?.results ?? []).filter(i => i.media_type !== 'person' && i.backdrop_path)
-  if (!items.length) return null
-  return items[Math.floor(Math.random() * Math.min(5, items.length))]
+const heroItems = computed(() =>
+  (allTrendingData.value?.results ?? [])
+    .filter(i => i.media_type !== 'person' && i.backdrop_path)
+    .slice(0, 6)
+)
+
+const heroIndex = ref(0)
+const heroItem = computed(() => heroItems.value[heroIndex.value] ?? null)
+
+let slideInterval: ReturnType<typeof setInterval> | null = null
+
+watch(heroItems, (items) => {
+  if (slideInterval) clearInterval(slideInterval)
+  if (items.length > 1) {
+    heroIndex.value = Math.floor(Math.random() * items.length)
+    slideInterval = setInterval(() => {
+      heroIndex.value = (heroIndex.value + 1) % items.length
+    }, 6000)
+  }
+}, { immediate: true })
+
+onUnmounted(() => {
+  if (slideInterval) clearInterval(slideInterval)
 })
 const recommendations = computed(() => ((recommendationsData.value as { results: MovieItem[] } | null)?.results ?? []).slice(0, 18))
 
@@ -67,11 +86,14 @@ const tabs = [
 <template>
   <div class="relative">
     <!-- Backdrop -->
-    <div class="absolute inset-x-0 top-0 h-100 sm:h-120 lg:h-140 overflow-hidden">
+    <div class="absolute inset-x-0 top-0 h-100 sm:h-[58vh] lg:h-[62vh] overflow-hidden">
       <Transition
         enter-active-class="transition-opacity duration-1000"
         enter-from-class="opacity-0"
         enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-1000 absolute inset-0"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
       >
         <img
           v-if="heroItem?.backdrop_path"
@@ -82,10 +104,24 @@ const tabs = [
         >
       </Transition>
       <div class="absolute inset-0 bg-linear-to-b from-black/50 via-black/40 to-default" />
+
+      <!-- Slide indicators -->
+      <div
+        v-if="heroItems.length > 1"
+        class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5"
+      >
+        <button
+          v-for="(_, i) in heroItems"
+          :key="i"
+          class="h-1 rounded-full transition-all duration-300"
+          :class="i === heroIndex ? 'w-5 bg-white' : 'w-1.5 bg-white/40'"
+          @click="heroIndex = i"
+        />
+      </div>
     </div>
 
     <!-- CTA: min-h fills viewport minus header(~64px) + tabs area(~80px) + one card row(~296px) -->
-    <div class="relative min-h-[calc(100svh-478px)] sm:min-h-0 flex flex-col justify-center">
+    <div class="relative min-h-[calc(100svh-478px)] sm:min-h-[48vh] flex flex-col justify-center">
       <UContainer class="py-8 text-center space-y-3">
         <h1 class="text-2xl sm:text-4xl font-bold text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">
           Stop scrolling. Start watching.
