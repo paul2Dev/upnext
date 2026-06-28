@@ -36,6 +36,7 @@ export default defineNuxtConfig({
 
   pwa: {
     registerType: 'autoUpdate',
+    injectRegister: 'auto',
     manifest: {
       name: 'UpNext',
       short_name: 'UpNext',
@@ -53,7 +54,7 @@ export default defineNuxtConfig({
       ]
     },
     workbox: {
-      navigateFallback: null,
+      navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}']
     },
     client: {
