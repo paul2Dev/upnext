@@ -107,12 +107,12 @@ function formatRuntime(mins: number): string {
 
 function formatRelativeDate(dateStr: string): string {
   const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000)
-  if (days === 0) return 'Added today'
-  if (days === 1) return 'Added yesterday'
-  if (days < 7) return `Added ${days} days ago`
-  if (days < 30) return `Added ${Math.floor(days / 7)}w ago`
-  if (days < 365) return `Added ${Math.floor(days / 30)}mo ago`
-  return `Added ${Math.floor(days / 365)}y ago`
+  if (days === 0) return 'Today'
+  if (days === 1) return '1d ago'
+  if (days < 7) return `${days}d ago`
+  if (days < 30) return `${Math.floor(days / 7)}w ago`
+  if (days < 365) return `${Math.floor(days / 30)}mo ago`
+  return `${Math.floor(days / 365)}y ago`
 }
 
 const pendingTitle = computed(() => {
@@ -208,39 +208,34 @@ const pendingTitle = computed(() => {
       >
         <MediaCard :item="{ ...item.tmdb_data, media_type: item.media_type as 'movie' | 'tv' }" />
 
-        <div class="px-0.5 mt-0.5 flex items-center gap-1 text-[11px] text-muted leading-tight">
-          <span v-if="item.tmdb_data.runtime">{{ formatRuntime(item.tmdb_data.runtime) }}</span>
-          <span v-else-if="item.tmdb_data.number_of_seasons">
-            {{ item.tmdb_data.number_of_seasons }} {{ item.tmdb_data.number_of_seasons === 1 ? 'season' : 'seasons' }}
-          </span>
-          <template v-if="item.tmdb_data.runtime || item.tmdb_data.number_of_seasons">
-            <span class="opacity-40">·</span>
-          </template>
-          <span class="truncate">{{ formatRelativeDate(item.added_at) }}</span>
+        <div class="mt-1 px-0.5 flex items-center justify-between gap-1">
+          <p class="text-[11px] text-muted leading-tight truncate">
+            <span v-if="item.tmdb_data.runtime">{{ formatRuntime(item.tmdb_data.runtime) }} · </span>
+            <span v-else-if="item.tmdb_data.number_of_seasons">{{ item.tmdb_data.number_of_seasons }}{{ item.tmdb_data.number_of_seasons === 1 ? ' season' : ' seasons' }} · </span>
+            {{ formatRelativeDate(item.added_at) }}
+          </p>
+          <div class="flex items-center shrink-0">
+            <button
+              class="size-6 flex items-center justify-center text-muted hover:text-red-400 transition-colors"
+              :disabled="removing === item.id"
+              @click.prevent="remove(item)"
+            >
+              <UIcon
+                name="i-lucide-trash-2"
+                class="size-3.5"
+              />
+            </button>
+            <button
+              class="size-6 flex items-center justify-center text-muted hover:text-green-400 transition-colors"
+              @click.prevent="openWatchModal(item)"
+            >
+              <UIcon
+                name="i-lucide-check"
+                class="size-3.5"
+              />
+            </button>
+          </div>
         </div>
-
-        <!-- Remove button -->
-        <button
-          class="absolute top-1.5 left-1.5 size-6 rounded-full bg-white text-black flex items-center justify-center shadow-md hover:bg-red-500 hover:text-white transition-colors z-10"
-          :disabled="removing === item.id"
-          @click.prevent="remove(item)"
-        >
-          <UIcon
-            name="i-lucide-x"
-            class="size-3.5"
-          />
-        </button>
-
-        <!-- Mark as watched button -->
-        <button
-          class="absolute top-1.5 right-1.5 size-6 rounded-full bg-white text-black flex items-center justify-center shadow-md hover:bg-green-500 hover:text-white transition-colors z-10"
-          @click.prevent="openWatchModal(item)"
-        >
-          <UIcon
-            name="i-lucide-check"
-            class="size-3.5"
-          />
-        </button>
       </div>
     </div>
 
