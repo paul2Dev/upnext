@@ -129,12 +129,17 @@ const tabs = [
         <p class="text-white/90 text-base max-w-xl mx-auto [text-shadow:0_1px_6px_rgba(0,0,0,0.9)]">
           Rate what you've seen, discover what's next, and never waste an evening on a bad pick again.
         </p>
-        <UButton
+        <QuickSearch class="mt-2" />
+        <NuxtLink
           to="/discover"
-          label="Explore"
-          icon="i-lucide-compass"
-          size="lg"
-        />
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/20 text-white/70 text-sm hover:bg-white/10 hover:text-white transition-all"
+        >
+          <UIcon
+            name="i-lucide-compass"
+            class="size-4"
+          />
+          Browse by genre
+        </NuxtLink>
       </UContainer>
     </div>
 
