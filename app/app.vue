@@ -15,6 +15,7 @@ useSeoMeta({
 })
 
 const { $pwa } = useNuxtApp()
+const config = useRuntimeConfig()
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
@@ -209,7 +210,7 @@ const userMenuItems = computed(() => [[
             </span>
           </div>
           <UButton
-            v-if="user"
+            v-if="user && config.public.featureSemanticSearch"
             to="/search"
             icon="i-lucide-sparkles"
             color="neutral"
@@ -251,7 +252,7 @@ const userMenuItems = computed(() => [[
             />
           </template>
           <UButton
-            v-if="user"
+            v-if="user && config.public.featureSemanticSearch"
             to="/search"
             icon="i-lucide-sparkles"
             label="Smart Search"

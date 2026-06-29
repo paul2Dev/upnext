@@ -27,7 +27,8 @@ export default defineNuxtConfig({
     seedSecret: process.env.SEED_SECRET,
     public: {
       tmdbBaseUrl: 'https://api.themoviedb.org/3',
-      tmdbImageBaseUrl: 'https://image.tmdb.org/t/p'
+      tmdbImageBaseUrl: 'https://image.tmdb.org/t/p',
+      featureSemanticSearch: process.env.FEATURE_SEMANTIC_SEARCH === 'true'
     }
   },
 

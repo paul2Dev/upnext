@@ -1,6 +1,11 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+  if (!config.public.featureSemanticSearch) {
+    throw createError({ statusCode: 404, message: 'Feature not enabled.' })
+  }
+
   const user = await serverSupabaseUser(event)
   if (!user) {
     throw createError({ statusCode: 401, message: 'Trebuie să fii autentificat pentru căutarea semantică.' })

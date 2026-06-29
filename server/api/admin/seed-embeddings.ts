@@ -3,6 +3,10 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
+  if (!config.public.featureSemanticSearch) {
+    throw createError({ statusCode: 404, message: 'Feature not enabled.' })
+  }
+
   const { secret } = getQuery(event)
   if (!config.seedSecret || secret !== config.seedSecret) {
     throw createError({ statusCode: 401, message: 'Unauthorized' })

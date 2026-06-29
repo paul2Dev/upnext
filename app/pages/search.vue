@@ -2,6 +2,11 @@
 definePageMeta({ middleware: 'auth' })
 useSeoMeta({ title: 'Smart Search — UpNext' })
 
+const config = useRuntimeConfig()
+if (!config.public.featureSemanticSearch) {
+  await navigateTo('/')
+}
+
 interface MovieResult {
   id: number
   title?: string
