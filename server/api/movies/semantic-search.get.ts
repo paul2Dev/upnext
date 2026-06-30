@@ -22,6 +22,16 @@ export default defineEventHandler(async (event) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabase = await serverSupabaseClient(event) as any
 
+  const dailyLimit = config.searchDailyLimit
+  const { data: usageCount, error: usageError } = await supabase.rpc('increment_search_usage', {
+    p_user_id: user.id,
+    p_limit: dailyLimit
+  })
+  if (usageError) throw createError({ statusCode: 500, message: usageError.message })
+  if ((usageCount as number) > dailyLimit) {
+    throw createError({ statusCode: 429, message: `Daily search limit reached. You have ${dailyLimit} searches per day.` })
+  }
+
   const embedding = await generateEmbedding(q.trim())
 
   const { data, error } = await supabase.rpc('search_media_by_embedding', {

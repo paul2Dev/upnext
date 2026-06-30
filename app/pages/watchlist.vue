@@ -41,17 +41,27 @@ const filteredItems = computed(() => {
 })
 
 const removing = ref<string | null>(null)
+const deleteModal = ref(false)
+const pendingDelete = ref<WatchlistRow | null>(null)
 
-async function remove(item: WatchlistRow) {
-  removing.value = item.id
+function confirmRemove(item: WatchlistRow) {
+  pendingDelete.value = item
+  deleteModal.value = true
+}
+
+async function remove() {
+  if (!pendingDelete.value) return
+  removing.value = pendingDelete.value.id
+  deleteModal.value = false
   try {
     await $fetch('/api/user/watchlist', {
       method: 'DELETE',
-      body: { movie_id: item.movie_id, media_type: item.media_type }
+      body: { movie_id: pendingDelete.value.movie_id, media_type: pendingDelete.value.media_type }
     })
     await refresh()
   } finally {
     removing.value = null
+    pendingDelete.value = null
   }
 }
 
@@ -216,28 +226,66 @@ const pendingTitle = computed(() => {
           </p>
           <div class="flex items-center shrink-0">
             <button
-              class="size-6 flex items-center justify-center text-muted hover:text-red-400 transition-colors"
+              class="size-8 flex items-center justify-center text-muted hover:text-red-400 transition-colors"
               :disabled="removing === item.id"
-              @click.prevent="remove(item)"
+              @click.prevent="confirmRemove(item)"
             >
               <UIcon
                 name="i-lucide-trash-2"
-                class="size-3.5"
+                class="size-4"
               />
             </button>
             <button
-              class="size-6 flex items-center justify-center text-muted hover:text-green-400 transition-colors"
+              class="size-8 flex items-center justify-center text-muted hover:text-green-400 transition-colors"
               @click.prevent="openWatchModal(item)"
             >
               <UIcon
-                name="i-lucide-check"
-                class="size-3.5"
+                name="i-lucide-plus"
+                class="size-4"
               />
             </button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Confirm delete modal -->
+    <UModal v-model:open="deleteModal">
+      <template #content>
+        <div class="p-6 flex flex-col items-center gap-5 text-center">
+          <UIcon
+            name="i-lucide-trash-2"
+            class="size-10 text-red-400"
+          />
+          <div>
+            <p class="font-semibold text-base">
+              Remove from watchlist?
+            </p>
+            <p class="text-sm text-muted mt-1">
+              {{ pendingDelete?.tmdb_data?.title ?? pendingDelete?.tmdb_data?.name }}
+            </p>
+          </div>
+          <div class="flex gap-3 w-full">
+            <UButton
+              class="flex-1"
+              color="neutral"
+              variant="soft"
+              @click="deleteModal = false"
+            >
+              Cancel
+            </UButton>
+            <UButton
+              class="flex-1"
+              color="error"
+              :loading="removing === pendingDelete?.id"
+              @click="remove()"
+            >
+              Remove
+            </UButton>
+          </div>
+        </div>
+      </template>
+    </UModal>
 
     <!-- Mark as watched modal -->
     <UModal v-model:open="watchModal">

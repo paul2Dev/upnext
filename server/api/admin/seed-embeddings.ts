@@ -18,8 +18,8 @@ export default defineEventHandler(async (event) => {
   const results = { inserted: 0, skipped: 0, errors: 0 }
 
   const sources: { mediaType: 'movie' | 'tv', endpoint: string }[] = [
-    { mediaType: 'movie', endpoint: 'movie/popular' },
-    { mediaType: 'movie', endpoint: 'movie/top_rated' },
+    // { mediaType: 'movie', endpoint: 'movie/popular' },
+    // { mediaType: 'movie', endpoint: 'movie/top_rated' },
     { mediaType: 'tv', endpoint: 'tv/popular' },
     { mediaType: 'tv', endpoint: 'tv/top_rated' }
   ]
@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
         try {
           const embedding = await generateEmbedding(buildMediaEmbeddingText(title, item.overview))
 
-          await supabase.from('media_embeddings').insert({
+          const { error } = await supabase.from('media_embeddings').insert({
             movie_id: item.id,
             title,
             overview: item.overview,
@@ -67,6 +67,7 @@ export default defineEventHandler(async (event) => {
             embedding: JSON.stringify(embedding)
           })
 
+          if (error) throw new Error(error.message)
           results.inserted++
         } catch {
           results.errors++

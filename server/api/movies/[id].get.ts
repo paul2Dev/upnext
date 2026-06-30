@@ -35,11 +35,12 @@ async function storeEmbeddingIfMissing(event: H3Event, movieId: number, title: s
 
   const embedding = await generateEmbedding(buildMediaEmbeddingText(title, overview))
 
-  await supabase.from('media_embeddings').insert({
+  const { error } = await supabase.from('media_embeddings').insert({
     movie_id: movieId,
     title,
     overview,
     media_type: 'movie',
     embedding: JSON.stringify(embedding)
   })
+  if (error) throw new Error(error.message)
 }
