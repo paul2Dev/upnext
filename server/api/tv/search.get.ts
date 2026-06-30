@@ -1,13 +1,13 @@
 export default defineEventHandler(async (event) => {
-  const { query, page = 1 } = getQuery(event)
+  const { query, page } = getQuery(event)
 
-  if (!query) {
+  if (!query || typeof query !== 'string' || query.trim().length === 0) {
     throw createError({ statusCode: 400, message: 'Query parameter is required' })
   }
 
   return tmdbFetch('/search/tv', {
-    query: String(query),
-    page: Number(page),
+    query: query.trim().slice(0, 200),
+    page: Math.max(1, Math.min(Number(page) || 1, 500)),
     include_adult: false
   })
 })

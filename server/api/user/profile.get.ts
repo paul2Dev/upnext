@@ -12,6 +12,6 @@ export default defineEventHandler(async (event) => {
     .eq('id', user.id)
     .single()
 
-  if (error) throw createError({ statusCode: 500, message: error.message })
+  if (error) throw createError({ statusCode: 500, message: 'Internal server error' })
   return data
 })

@@ -14,7 +14,9 @@ export default defineEventHandler(async (event) => {
     tmdbFetch<{ results?: Record<string, Record<string, unknown>> }>(`/tv/${id}/watch/providers`)
   ])
 
-  storeEmbeddingIfMissing(event, Number(id), details.name, details.overview).catch(err => console.error('[embedding]', err))
+  storeEmbeddingIfMissing(event, Number(id), details.name, details.overview).catch(err =>
+    console.error('[embedding] tv store failed', { movie_id: id, media_type: 'tv', error: (err as Error).message })
+  )
 
   return { ...details, watch_providers: providers.results?.[region] ?? null }
 })
