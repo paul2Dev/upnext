@@ -43,7 +43,10 @@ export default defineEventHandler(async (event) => {
     match_count: 20
   })
 
-  if (error) throw createError({ statusCode: 500, message: (error as { message: string }).message })
+  if (error) {
+    console.error('[semantic-search] RPC failed', { error: (error as { message: string }).message })
+    throw createError({ statusCode: 500, message: 'Internal server error' })
+  }
 
   type ResultRow = { movie_id: number, title: string, overview: string, similarity: number, media_type: 'movie' | 'tv' }
   const rows = ((data as ResultRow[]) ?? []).filter(row => row.similarity >= 0.25)

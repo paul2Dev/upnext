@@ -1,4 +1,4 @@
 export default defineEventHandler(async (event) => {
-  const { page = 1 } = getQuery(event)
-  return tmdbFetch('/person/popular', { page: Number(page) })
+  const { page } = getQuery(event)
+  return tmdbFetch('/person/popular', { page: Math.max(1, Math.min(Number(page) || 1, 500)) })
 })
