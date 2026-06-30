@@ -11,12 +11,16 @@ export default defineEventHandler(async (event) => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabase = await serverSupabaseClient(event) as any
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('search_usage')
     .select('count')
     .eq('user_id', user.id)
     .eq('date', new Date().toISOString().slice(0, 10))
     .single()
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('[search-usage] fetch failed', { user_id: user.id, error: error.message })
+  }
 
   const used = (data?.count as number) ?? 0
 

@@ -21,18 +21,22 @@ export default defineEventHandler(async (event) => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabase = await serverSupabaseClient(event) as any
-
   const dailyLimit = config.searchDailyLimit
+
+  const embedding = await generateEmbedding(q.trim())
+
+  if (!Array.isArray(embedding) || embedding.length !== 1536 || !embedding.every(n => Number.isFinite(n))) {
+    throw createError({ statusCode: 500, message: 'Invalid embedding returned from OpenAI.' })
+  }
+
   const { data: usageCount, error: usageError } = await supabase.rpc('increment_search_usage', {
     p_user_id: user.id,
     p_limit: dailyLimit
   })
-  if (usageError) throw createError({ statusCode: 500, message: usageError.message })
+  if (usageError) throw createError({ statusCode: 500, message: 'Internal server error' })
   if ((usageCount as number) > dailyLimit) {
     throw createError({ statusCode: 429, message: `Daily search limit reached. You have ${dailyLimit} searches per day.` })
   }
-
-  const embedding = await generateEmbedding(q.trim())
 
   const { data, error } = await supabase.rpc('search_media_by_embedding', {
     query_embedding: JSON.stringify(embedding),

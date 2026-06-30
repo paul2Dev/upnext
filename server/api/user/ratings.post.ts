@@ -1,16 +1,24 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { z } from 'zod'
+
+const schema = z.object({
+  movie_id: z.number().int().positive().max(999_999_999),
+  media_type: z.enum(['movie', 'tv']),
+  rating: z.number().int().min(1).max(5),
+  tmdb_data: z.record(z.string(), z.unknown()).optional().default({})
+    .refine(v => JSON.stringify(v).length <= 50_000, 'tmdb_data too large')
+})
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
   if (!user) throw createError({ statusCode: 401, message: 'Unauthorized' })
 
-  const body = await readBody<{ movie_id: number, media_type: string, rating: number, tmdb_data?: Record<string, unknown> }>(event)
-  if (!body.movie_id || !body.media_type || !body.rating) {
-    throw createError({ statusCode: 400, message: 'movie_id, media_type și rating sunt obligatorii' })
+  const raw = await readBody(event)
+  const parsed = schema.safeParse(raw)
+  if (!parsed.success) {
+    throw createError({ statusCode: 400, message: parsed.error.issues[0]?.message ?? 'Invalid input' })
   }
-  if (body.rating < 1 || body.rating > 5) {
-    throw createError({ statusCode: 400, message: 'Rating trebuie să fie între 1 și 5' })
-  }
+  const body = parsed.data
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const client = await serverSupabaseClient(event) as any
@@ -34,7 +42,7 @@ export default defineEventHandler(async (event) => {
     .select()
     .single()
 
-  if (error) throw createError({ statusCode: 500, message: error.message })
+  if (error) throw createError({ statusCode: 500, message: 'Internal server error' })
 
   return data
 })
