@@ -26,14 +26,18 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await supabase.rpc('search_movies_by_embedding', {
     query_embedding: JSON.stringify(embedding),
-    match_count: 20
+    match_count: 20,
+    match_threshold: 0.25
   })
 
   if (error) throw createError({ statusCode: 500, message: (error as { message: string }).message })
-  if (!(data as unknown[])?.length) return []
+
+  type ResultRow = { movie_id: number, title: string, overview: string, similarity: number }
+  const rows = ((data as ResultRow[]) ?? []).filter(row => row.similarity >= 0.25)
+  if (!rows.length) return []
 
   const enriched = await Promise.all(
-    (data as { movie_id: number, title: string, overview: string, similarity: number }[]).map(item =>
+    rows.map(item =>
       tmdbFetch<Record<string, unknown>>(`/movie/${item.movie_id}`)
         .then(details => ({ ...details, media_type: 'movie', _similarity: item.similarity }))
         .catch(() => null)
