@@ -7,15 +7,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Feature not enabled.' })
   }
 
-  const { secret } = getQuery(event)
-  if (!config.seedSecret || secret !== config.seedSecret) {
+  const authHeader = getHeader(event, 'authorization')
+  if (!config.seedSecret || authHeader !== `Bearer ${config.seedSecret}`) {
     throw createError({ statusCode: 401, message: 'Unauthorized' })
   }
+
+  const { maxPages: maxPagesParam } = getQuery(event)
+  const maxPages = Math.min(Math.max(1, Number(maxPagesParam) || 50), 500)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabase = serverSupabaseServiceRole<any>(event)
 
-  const results = { inserted: 0, skipped: 0, errors: 0 }
+  const results = { inserted: 0, skipped: 0, errors: 0, maxPages }
 
   const sources: { mediaType: 'movie' | 'tv', endpoint: string }[] = [
     // { mediaType: 'movie', endpoint: 'movie/popular' },
@@ -25,7 +28,7 @@ export default defineEventHandler(async (event) => {
   ]
 
   for (const { mediaType, endpoint } of sources) {
-    for (let page = 1; page <= 500; page++) {
+    for (let page = 1; page <= maxPages; page++) {
       let data: { results: TmdbMedia[] }
       try {
         data = await $fetch<{ results: TmdbMedia[] }>(
