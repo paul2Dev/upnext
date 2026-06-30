@@ -1,4 +1,4 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server'
 import type { H3Event } from 'h3'
 
 export default defineEventHandler(async (event) => {
@@ -14,9 +14,13 @@ export default defineEventHandler(async (event) => {
     tmdbFetch<{ results?: Record<string, Record<string, unknown>> }>(`/tv/${id}/watch/providers`)
   ])
 
-  storeEmbeddingIfMissing(event, Number(id), details.name, details.overview).catch(err =>
-    console.error('[embedding] tv store failed', { movie_id: id, media_type: 'tv', error: (err as Error).message })
-  )
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: { session } } = await (await serverSupabaseClient(event) as any).auth.getSession()
+  if (session) {
+    storeEmbeddingIfMissing(event, Number(id), details.name, details.overview).catch(err =>
+      console.error('[embedding] tv store failed', { movie_id: id, media_type: 'tv', error: (err as Error).message })
+    )
+  }
 
   return { ...details, watch_providers: providers.results?.[region] ?? null }
 })
