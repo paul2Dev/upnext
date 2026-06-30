@@ -21,10 +21,10 @@ export default defineEventHandler(async (event) => {
   const results = { inserted: 0, skipped: 0, errors: 0, maxPages }
 
   const sources: { mediaType: 'movie' | 'tv', endpoint: string }[] = [
-    // { mediaType: 'movie', endpoint: 'movie/popular' },
-    // { mediaType: 'movie', endpoint: 'movie/top_rated' },
     { mediaType: 'tv', endpoint: 'tv/popular' },
-    { mediaType: 'tv', endpoint: 'tv/top_rated' }
+    { mediaType: 'tv', endpoint: 'tv/top_rated' },
+    { mediaType: 'movie', endpoint: 'movie/popular' },
+    { mediaType: 'movie', endpoint: 'movie/top_rated' }
   ]
 
   for (const { mediaType, endpoint } of sources) {
