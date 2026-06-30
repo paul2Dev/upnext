@@ -21,6 +21,6 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   return embedding
 }
 
-export function buildMovieEmbeddingText(title: string, overview: string): string {
+export function buildMediaEmbeddingText(title: string, overview: string): string {
   return `${title}. ${overview}`.trim()
 }

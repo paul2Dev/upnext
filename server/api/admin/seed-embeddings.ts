@@ -12,18 +12,24 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: 'Unauthorized' })
   }
 
-  const supabase = await serverSupabaseServiceRole<Database>(event)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = serverSupabaseServiceRole<any>(event)
 
   const results = { inserted: 0, skipped: 0, errors: 0 }
 
-  const endpoints = ['popular', 'top_rated']
+  const sources: { mediaType: 'movie' | 'tv', endpoint: string }[] = [
+    { mediaType: 'movie', endpoint: 'movie/popular' },
+    { mediaType: 'movie', endpoint: 'movie/top_rated' },
+    { mediaType: 'tv', endpoint: 'tv/popular' },
+    { mediaType: 'tv', endpoint: 'tv/top_rated' }
+  ]
 
-  for (const endpoint of endpoints) {
+  for (const { mediaType, endpoint } of sources) {
     for (let page = 1; page <= 500; page++) {
-      let data: { results: TmdbMovie[] }
+      let data: { results: TmdbMedia[] }
       try {
-        data = await $fetch<{ results: TmdbMovie[] }>(
-          `https://api.themoviedb.org/3/movie/${endpoint}?api_key=${config.tmdbApiKey}&language=en-US&page=${page}`
+        data = await $fetch<{ results: TmdbMedia[] }>(
+          `https://api.themoviedb.org/3/${endpoint}?api_key=${config.tmdbApiKey}&language=en-US&page=${page}`
         )
       } catch {
         break
@@ -31,16 +37,18 @@ export default defineEventHandler(async (event) => {
 
       if (!data.results?.length) break
 
-      for (const movie of data.results) {
-        if (!movie.overview) {
+      for (const item of data.results) {
+        const title = item.title ?? item.name ?? ''
+        if (!item.overview || !title) {
           results.skipped++
           continue
         }
 
         const { data: existing } = await supabase
-          .from('movie_embeddings')
+          .from('media_embeddings')
           .select('movie_id')
-          .eq('movie_id', movie.id)
+          .eq('movie_id', item.id)
+          .eq('media_type', mediaType)
           .single()
 
         if (existing) {
@@ -49,13 +57,13 @@ export default defineEventHandler(async (event) => {
         }
 
         try {
-          const text = buildMovieEmbeddingText(movie.title, movie.overview)
-          const embedding = await generateEmbedding(text)
+          const embedding = await generateEmbedding(buildMediaEmbeddingText(title, item.overview))
 
-          await supabase.from('movie_embeddings').insert({
-            movie_id: movie.id,
-            title: movie.title,
-            overview: movie.overview,
+          await supabase.from('media_embeddings').insert({
+            movie_id: item.id,
+            title,
+            overview: item.overview,
+            media_type: mediaType,
             embedding: JSON.stringify(embedding)
           })
 
@@ -72,11 +80,9 @@ export default defineEventHandler(async (event) => {
   return results
 })
 
-interface TmdbMovie {
+interface TmdbMedia {
   id: number
-  title: string
+  title?: string
+  name?: string
   overview: string
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Database = any

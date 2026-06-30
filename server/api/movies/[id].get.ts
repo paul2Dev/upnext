@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     tmdbFetch<{ results?: Record<string, Record<string, unknown>> }>(`/movie/${id}/watch/providers`)
   ])
 
-  // stochează embeddingul în background dacă nu există deja
   storeEmbeddingIfMissing(event, id, details.title, details.overview).catch(err => console.error('[embedding]', err))
 
   return {
@@ -26,19 +25,21 @@ async function storeEmbeddingIfMissing(event: H3Event, movieId: number, title: s
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabase = serverSupabaseServiceRole(event) as any
   const { data } = await supabase
-    .from('movie_embeddings')
+    .from('media_embeddings')
     .select('movie_id')
     .eq('movie_id', movieId)
+    .eq('media_type', 'movie')
     .single()
 
   if (data) return
 
-  const embedding = await generateEmbedding(buildMovieEmbeddingText(title, overview))
+  const embedding = await generateEmbedding(buildMediaEmbeddingText(title, overview))
 
-  await supabase.from('movie_embeddings').insert({
+  await supabase.from('media_embeddings').insert({
     movie_id: movieId,
     title,
     overview,
+    media_type: 'movie',
     embedding: JSON.stringify(embedding)
   })
 }
