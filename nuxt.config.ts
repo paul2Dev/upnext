@@ -23,9 +23,13 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     tmdbApiKey: process.env.TMDB_API_KEY,
+    openaiApiKey: process.env.OPENAI_API_KEY,
+    seedSecret: process.env.SEED_SECRET,
+    searchDailyLimit: parseInt(process.env.SEARCH_DAILY_LIMIT ?? '15', 10),
     public: {
       tmdbBaseUrl: 'https://api.themoviedb.org/3',
-      tmdbImageBaseUrl: 'https://image.tmdb.org/t/p'
+      tmdbImageBaseUrl: 'https://image.tmdb.org/t/p',
+      featureSemanticSearch: process.env.FEATURE_SEMANTIC_SEARCH === 'true'
     }
   },
 

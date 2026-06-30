@@ -15,6 +15,7 @@ useSeoMeta({
 })
 
 const { $pwa } = useNuxtApp()
+const config = useRuntimeConfig()
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
@@ -191,21 +192,32 @@ const userMenuItems = computed(() => [[
           <AppLogo />
         </NuxtLink>
 
-        <div class="relative md:hidden ml-1">
+        <div class="flex items-center md:hidden ml-1">
+          <div class="relative">
+            <UButton
+              to="/watchlist"
+              icon="i-lucide-bookmark"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              aria-label="Watchlist"
+            />
+            <span
+              v-if="user && watchlistCount > 0"
+              class="absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-0.5 pointer-events-none leading-none"
+            >
+              {{ watchlistCount > 99 ? '99+' : watchlistCount }}
+            </span>
+          </div>
           <UButton
-            to="/watchlist"
-            icon="i-lucide-bookmark"
+            v-if="user && config.public.featureSemanticSearch"
+            to="/search"
+            icon="i-lucide-sparkles"
             color="neutral"
             variant="ghost"
             size="sm"
-            aria-label="Watchlist"
+            aria-label="Smart Search"
           />
-          <span
-            v-if="user && watchlistCount > 0"
-            class="absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-0.5 pointer-events-none leading-none"
-          >
-            {{ watchlistCount > 99 ? '99+' : watchlistCount }}
-          </span>
         </div>
 
         <nav class="hidden md:flex items-center gap-1 ml-6">
@@ -239,6 +251,15 @@ const userMenuItems = computed(() => [[
               size="sm"
             />
           </template>
+          <UButton
+            v-if="user && config.public.featureSemanticSearch"
+            to="/search"
+            icon="i-lucide-sparkles"
+            label="Smart Search"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+          />
         </nav>
       </template>
 
