@@ -16,46 +16,56 @@ export default defineEventHandler(async (event) => {
 
   const results = { inserted: 0, skipped: 0, errors: 0 }
 
-  for (let page = 1; page <= 25; page++) {
-    const data = await $fetch<{ results: TmdbMovie[] }>(
-      `https://api.themoviedb.org/3/movie/popular?api_key=${config.tmdbApiKey}&language=en-US&page=${page}`
-    )
+  const endpoints = ['popular', 'top_rated']
 
-    for (const movie of data.results) {
-      if (!movie.overview) {
-        results.skipped++
-        continue
-      }
-
-      const { data: existing } = await supabase
-        .from('movie_embeddings')
-        .select('movie_id')
-        .eq('movie_id', movie.id)
-        .single()
-
-      if (existing) {
-        results.skipped++
-        continue
-      }
-
+  for (const endpoint of endpoints) {
+    for (let page = 1; page <= 500; page++) {
+      let data: { results: TmdbMovie[] }
       try {
-        const text = buildMovieEmbeddingText(movie.title, movie.overview)
-        const embedding = await generateEmbedding(text)
-
-        await supabase.from('movie_embeddings').insert({
-          movie_id: movie.id,
-          title: movie.title,
-          overview: movie.overview,
-          embedding: JSON.stringify(embedding)
-        })
-
-        results.inserted++
+        data = await $fetch<{ results: TmdbMovie[] }>(
+          `https://api.themoviedb.org/3/movie/${endpoint}?api_key=${config.tmdbApiKey}&language=en-US&page=${page}`
+        )
       } catch {
-        results.errors++
+        break
       }
 
-      // evităm rate limiting OpenAI
-      await new Promise(r => setTimeout(r, 200))
+      if (!data.results?.length) break
+
+      for (const movie of data.results) {
+        if (!movie.overview) {
+          results.skipped++
+          continue
+        }
+
+        const { data: existing } = await supabase
+          .from('movie_embeddings')
+          .select('movie_id')
+          .eq('movie_id', movie.id)
+          .single()
+
+        if (existing) {
+          results.skipped++
+          continue
+        }
+
+        try {
+          const text = buildMovieEmbeddingText(movie.title, movie.overview)
+          const embedding = await generateEmbedding(text)
+
+          await supabase.from('movie_embeddings').insert({
+            movie_id: movie.id,
+            title: movie.title,
+            overview: movie.overview,
+            embedding: JSON.stringify(embedding)
+          })
+
+          results.inserted++
+        } catch {
+          results.errors++
+        }
+
+        await new Promise(r => setTimeout(r, 50))
+      }
     }
   }
 
