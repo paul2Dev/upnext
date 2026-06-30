@@ -9,11 +9,11 @@ export default defineEventHandler((event) => {
       'default-src \'self\'',
       'script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'',
       'style-src \'self\' \'unsafe-inline\'',
-      'img-src \'self\' data: blob: https://image.tmdb.org https://lh3.googleusercontent.com',
+      'img-src \'self\' data: blob: https://image.tmdb.org https://*.googleusercontent.com',
       'font-src \'self\' data:',
-      'connect-src \'self\' https://*.supabase.co wss://*.supabase.co https://api.themoviedb.org https://api.openai.com',
-      'media-src \'self\' https://www.youtube.com',
-      'frame-src https://www.youtube.com',
+      'connect-src \'self\' https://*.supabase.co wss://*.supabase.co https://api.themoviedb.org https://api.openai.com https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com',
+      'media-src \'self\' https://www.youtube.com https://www.youtube-nocookie.com',
+      'frame-src https://www.youtube.com https://www.youtube-nocookie.com',
       'object-src \'none\''
     ].join('; ')
   })
