@@ -8,10 +8,27 @@ interface Movie {
   overview: string
 }
 
-const { movie } = defineProps<{ movie: Movie }>()
+const { movie, showWatchlistButton = true } = defineProps<{ movie: Movie, showWatchlistButton?: boolean }>()
 
 const { poster } = useTmdbImage()
 const posterUrl = computed(() => poster(movie.poster_path))
+
+const user = useSupabaseUser()
+const { has, toggle } = useWatchlist()
+const inWatchlist = computed(() => has(movie.id, 'movie'))
+const togglingWatchlist = ref(false)
+
+async function onToggleWatchlist(event: Event) {
+  event.preventDefault()
+  event.stopPropagation()
+  if (!user.value || togglingWatchlist.value) return
+  togglingWatchlist.value = true
+  try {
+    await toggle(movie.id, 'movie', movie)
+  } finally {
+    togglingWatchlist.value = false
+  }
+}
 </script>
 
 <template>
@@ -36,6 +53,20 @@ const posterUrl = computed(() => poster(movie.poster_path))
           class="size-12 text-muted"
         />
       </div>
+
+      <button
+        v-if="showWatchlistButton && user"
+        class="absolute top-2 left-2 size-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center transition-transform hover:scale-110 disabled:opacity-50"
+        :disabled="togglingWatchlist"
+        :aria-label="inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'"
+        @click="onToggleWatchlist"
+      >
+        <UIcon
+          :name="inWatchlist ? 'i-lucide-bookmark-check' : 'i-lucide-bookmark-plus'"
+          class="size-4"
+          :class="inWatchlist ? 'text-primary' : 'text-white'"
+        />
+      </button>
 
       <div class="absolute top-2 right-2">
         <UBadge

@@ -12,9 +12,11 @@ interface MediaItem {
   overview?: string
 }
 
-const { item } = defineProps<{ item: MediaItem }>()
+const { item, showWatchlistButton = true } = defineProps<{ item: MediaItem, showWatchlistButton?: boolean }>()
 
 const { poster } = useTmdbImage()
+const user = useSupabaseUser()
+const { has, toggle } = useWatchlist()
 
 const mediaType = computed(() => item.media_type ?? 'movie')
 const displayTitle = computed(() => item.title ?? item.name ?? '—')
@@ -27,6 +29,22 @@ const link = computed(() => {
   if (mediaType.value === 'collection') return `/collection/${item.id}`
   return `/movie/${item.id}`
 })
+
+const isWatchable = computed(() => mediaType.value === 'movie' || mediaType.value === 'tv')
+const inWatchlist = computed(() => has(item.id, mediaType.value))
+const togglingWatchlist = ref(false)
+
+async function onToggleWatchlist(event: Event) {
+  event.preventDefault()
+  event.stopPropagation()
+  if (!user.value || togglingWatchlist.value) return
+  togglingWatchlist.value = true
+  try {
+    await toggle(item.id, mediaType.value as 'movie' | 'tv', item)
+  } finally {
+    togglingWatchlist.value = false
+  }
+}
 </script>
 
 <template>
@@ -51,6 +69,20 @@ const link = computed(() => {
           class="size-12 text-muted"
         />
       </div>
+
+      <button
+        v-if="isWatchable && showWatchlistButton && user"
+        class="absolute top-2 left-2 size-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center transition-transform hover:scale-110 disabled:opacity-50"
+        :disabled="togglingWatchlist"
+        :aria-label="inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'"
+        @click="onToggleWatchlist"
+      >
+        <UIcon
+          :name="inWatchlist ? 'i-lucide-bookmark-check' : 'i-lucide-bookmark-plus'"
+          class="size-4"
+          :class="inWatchlist ? 'text-primary' : 'text-white'"
+        />
+      </button>
 
       <div class="absolute bottom-2 right-2">
         <UBadge

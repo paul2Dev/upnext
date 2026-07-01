@@ -43,9 +43,9 @@ watch(
   { immediate: true }
 )
 
-const upcomingMovies = computed(() => upcomingData.value?.results?.slice(0, 18) ?? [])
-const topRatedMovies = computed(() => topRatedData.value?.results?.slice(0, 18) ?? [])
-const allTrending = computed(() => (allTrendingData.value?.results ?? []).filter(i => i.media_type !== 'person').slice(0, 18))
+const upcomingMovies = computed(() => upcomingData.value?.results?.slice(0, 20) ?? [])
+const topRatedMovies = computed(() => topRatedData.value?.results?.slice(0, 20) ?? [])
+const allTrending = computed(() => (allTrendingData.value?.results ?? []).filter(i => i.media_type !== 'person').slice(0, 20))
 
 const heroItems = computed(() =>
   (allTrendingData.value?.results ?? [])
@@ -71,7 +71,7 @@ watch(heroItems, (items) => {
 onUnmounted(() => {
   if (slideInterval) clearInterval(slideInterval)
 })
-const recommendations = computed(() => ((recommendationsData.value as { results: MovieItem[] } | null)?.results ?? []).slice(0, 18))
+const recommendations = computed(() => ((recommendationsData.value as { results: MovieItem[] } | null)?.results ?? []).slice(0, 20))
 
 const onboardingDone = computed(() => !!profileCache.value?.onboarding_done)
 
@@ -120,26 +120,18 @@ const tabs = [
       </div>
     </div>
 
-    <!-- CTA: min-h fills viewport minus header(~64px) + tabs area(~80px) + one card row(~296px) -->
-    <div class="relative min-h-[calc(100svh-478px)] sm:min-h-[48vh] flex flex-col justify-center">
-      <UContainer class="py-8 text-center space-y-3">
-        <h1 class="text-2xl sm:text-4xl font-bold text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">
-          Your personal movie guide.
-        </h1>
-        <p class="text-white/90 text-base max-w-xl mx-auto [text-shadow:0_1px_6px_rgba(0,0,0,0.9)]">
-          Track what you've watched, discover what to watch next, and find where to stream it — all in one place.
-        </p>
+    <!-- CTA: fixed offset from header, kept identical to /search so both hero sections align -->
+    <div class="relative">
+      <UContainer class="pt-16 sm:pt-24 lg:pt-32 pb-8 text-center space-y-3">
+        <div class="inline-block bg-default/30 backdrop-blur-sm rounded-2xl px-6 py-5 shadow-lg">
+          <h1 class="text-2xl sm:text-3xl font-bold">
+            Your personal movie guide.
+          </h1>
+          <p class="text-muted text-sm leading-relaxed max-w-md mx-auto mt-2">
+            Track what you've watched, discover what to watch next, and find where to stream it — all in one place.
+          </p>
+        </div>
         <QuickSearch class="mt-2" />
-        <NuxtLink
-          to="/discover"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/20 text-white/70 text-sm hover:bg-white/10 hover:text-white transition-all"
-        >
-          <UIcon
-            name="i-lucide-compass"
-            class="size-4"
-          />
-          Browse by genre
-        </NuxtLink>
       </UContainer>
     </div>
 
@@ -191,10 +183,10 @@ const tabs = [
             <!-- Recommendations loading -->
             <div
               v-else-if="loadingRecommendations"
-              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
             >
               <div
-                v-for="n in 18"
+                v-for="n in 20"
                 :key="n"
                 class="aspect-2/3 rounded-lg bg-elevated animate-pulse"
               />
@@ -203,7 +195,7 @@ const tabs = [
             <!-- Recommendations -->
             <div
               v-else
-              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
             >
               <MovieCard
                 v-for="movie in recommendations"
@@ -215,7 +207,7 @@ const tabs = [
         </template>
 
         <template #all>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-6">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-6">
             <MediaCard
               v-for="item in allTrending"
               :key="`${item.media_type}-${item.id}`"
@@ -225,7 +217,7 @@ const tabs = [
         </template>
 
         <template #upcoming>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-6">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-6">
             <MovieCard
               v-for="movie in upcomingMovies"
               :key="movie.id"
@@ -235,7 +227,7 @@ const tabs = [
         </template>
 
         <template #top-rated>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-6">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-6">
             <MovieCard
               v-for="movie in topRatedMovies"
               :key="movie.id"

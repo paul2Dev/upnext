@@ -29,7 +29,7 @@ const editingGenres = ref(false)
 const savingGenres = ref(false)
 const selectedGenres = ref<number[]>([])
 
-const [{ data: profile }, { data: genresData }, { data: watchlist }, { data: watched }] = await Promise.all([
+const [{ data: profile, refresh: refreshProfile }, { data: genresData }, { data: watchlist }, { data: watched }] = await Promise.all([
   useFetch<{ preferred_genres: number[], onboarding_done: boolean }>('/api/user/profile'),
   useFetch<{ genres: Genre[] }>('/api/movies/genres'),
   useFetch<WatchlistRow[]>('/api/user/watchlist'),
@@ -58,7 +58,7 @@ async function saveGenres() {
       method: 'POST',
       body: { genres: selectedGenres.value }
     })
-    if (profile.value) profile.value.preferred_genres = [...selectedGenres.value]
+    await refreshProfile()
     const profileCache = useState('profile-cache')
     profileCache.value = null
     editingGenres.value = false

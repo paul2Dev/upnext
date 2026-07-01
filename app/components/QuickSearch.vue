@@ -141,13 +141,13 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
     <div class="relative">
       <UIcon
         name="i-lucide-search"
-        class="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-white/60 pointer-events-none"
+        class="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-muted pointer-events-none"
       />
       <input
         v-model="query"
         type="text"
         placeholder="Search a movie or TV show..."
-        class="w-full pl-11 pr-10 py-3.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/60 outline-none focus:border-white/50 focus:bg-white/15 transition-all text-base"
+        class="w-full pl-11 pr-10 py-3.5 rounded-xl bg-default/30 backdrop-blur-sm border border-default text-default font-sans placeholder:text-muted placeholder:text-sm placeholder:font-sans outline-none focus:border-white/50 transition-all text-sm"
         @focus="isOpen = results.length > 0"
         @keydown.escape="clearSearch"
       >
@@ -155,7 +155,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
         <UIcon
           v-if="loading"
           name="i-lucide-loader-circle"
-          class="size-5 text-white/60 animate-spin"
+          class="size-5 text-muted animate-spin"
         />
       </div>
     </div>

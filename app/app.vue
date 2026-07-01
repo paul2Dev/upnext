@@ -20,6 +20,12 @@ const config = useRuntimeConfig()
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const route = useRoute()
+const router = useRouter()
+
+const isStandalone = ref(false)
+onMounted(() => {
+  isStandalone.value = window.matchMedia('(display-mode: standalone)').matches
+})
 
 const profileCache = useState<{ onboarding_done: boolean, preferred_genres?: number[] } | null>('profile-cache', () => null)
 
@@ -45,16 +51,9 @@ const navLinks = [
   { label: 'Watchlist', to: '/watchlist', icon: 'i-lucide-bookmark' }
 ]
 
-const watchlistCount = useState<number>('watchlist-count', () => 0)
+const { count: watchlistCount, refresh: refreshWatchlist } = useWatchlist()
 
-watch(user, async (u) => {
-  if (u) {
-    const data = await $fetch<{ id: string }[]>('/api/user/watchlist').catch(() => [])
-    watchlistCount.value = data?.length ?? 0
-  } else {
-    watchlistCount.value = 0
-  }
-}, { immediate: true })
+watch(user, () => refreshWatchlist(), { immediate: true })
 
 const colorMode = useColorMode()
 
@@ -188,6 +187,16 @@ const userMenuItems = computed(() => [[
     <UHeader :toggle="false">
       <template #left>
         <UButton
+          v-if="isStandalone && route.path !== '/'"
+          class="md:hidden"
+          color="neutral"
+          variant="ghost"
+          icon="i-lucide-chevron-left"
+          aria-label="Back"
+          @click="router.back()"
+        />
+        <UButton
+          v-else
           class="md:hidden"
           color="neutral"
           variant="ghost"
