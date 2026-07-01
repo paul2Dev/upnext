@@ -11,7 +11,7 @@ export default defineEventHandler((event) => {
       'style-src \'self\' \'unsafe-inline\'',
       'img-src \'self\' data: blob: https://image.tmdb.org https://*.googleusercontent.com',
       'font-src \'self\' data:',
-      'connect-src \'self\' https://*.supabase.co wss://*.supabase.co https://api.themoviedb.org https://api.openai.com https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com',
+      'connect-src \'self\' https://*.supabase.co wss://*.supabase.co https://api.themoviedb.org https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com',
       'media-src \'self\' https://www.youtube.com https://www.youtube-nocookie.com',
       'frame-src https://www.youtube.com https://www.youtube-nocookie.com',
       'object-src \'none\''
