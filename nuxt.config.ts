@@ -89,6 +89,11 @@ export default defineNuxtConfig({
         '/people',
         '/collection/*'
       ]
+    },
+    cookieOptions: {
+      maxAge: 60 * 60 * 24 * 10,
+      sameSite: 'lax',
+      secure: true
     }
   }
 })

@@ -25,9 +25,9 @@ useSeoMeta({ title: 'Watchlist — UpNext' })
 
 const { data: items, refresh } = await useFetch<WatchlistRow[]>('/api/user/watchlist')
 
-const watchlistCount = useState<number>('watchlist-count', () => 0)
+const { ids: watchlistIds } = useWatchlist()
 watch(items, (v) => {
-  watchlistCount.value = v?.length ?? 0
+  watchlistIds.value = new Set((v ?? []).map(i => watchlistKey(i.movie_id, i.media_type)))
 }, { immediate: true })
 
 const activeFilter = ref<'all' | 'movie' | 'tv'>('all')
@@ -209,14 +209,17 @@ const pendingTitle = computed(() => {
 
     <div
       v-else
-      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
     >
       <div
         v-for="item in filteredItems"
         :key="item.id"
         class="relative group"
       >
-        <MediaCard :item="{ ...item.tmdb_data, media_type: item.media_type as 'movie' | 'tv' }" />
+        <MediaCard
+          :item="{ ...item.tmdb_data, media_type: item.media_type as 'movie' | 'tv' }"
+          :show-watchlist-button="false"
+        />
 
         <div class="mt-1 px-0.5 flex items-center justify-between gap-1">
           <p class="text-[11px] text-muted leading-tight truncate">
