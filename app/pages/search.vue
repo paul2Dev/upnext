@@ -133,9 +133,9 @@ function similarityLabel(score: number) {
       </div>
     </div>
 
-    <!-- Hero: title + search box, vertically centered like the homepage -->
-    <div class="relative min-h-[calc(100svh-478px)] sm:min-h-[48vh] flex flex-col justify-center">
-      <UContainer class="py-8">
+    <!-- Hero: title + search box, fixed offset from header identical to the homepage -->
+    <div class="relative">
+      <UContainer class="pt-16 sm:pt-24 lg:pt-32 pb-8">
         <div class="max-w-2xl mx-auto space-y-3">
           <!-- Header -->
           <div class="text-center">

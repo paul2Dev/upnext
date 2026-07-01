@@ -120,9 +120,9 @@ const tabs = [
       </div>
     </div>
 
-    <!-- CTA: min-h fills viewport minus header(~64px) + tabs area(~80px) + one card row(~296px) -->
-    <div class="relative min-h-[calc(100svh-478px)] sm:min-h-[48vh] flex flex-col justify-center">
-      <UContainer class="py-8 text-center space-y-3">
+    <!-- CTA: fixed offset from header, kept identical to /search so both hero sections align -->
+    <div class="relative">
+      <UContainer class="pt-16 sm:pt-24 lg:pt-32 pb-8 text-center space-y-3">
         <div class="inline-block bg-default/30 backdrop-blur-sm rounded-2xl px-6 py-5 shadow-lg">
           <h1 class="text-2xl sm:text-3xl font-bold">
             Your personal movie guide.
@@ -132,16 +132,6 @@ const tabs = [
           </p>
         </div>
         <QuickSearch class="mt-2" />
-        <NuxtLink
-          to="/discover"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-default/30 backdrop-blur-sm border border-default text-muted text-sm hover:text-default hover:bg-default/50 transition-all"
-        >
-          <UIcon
-            name="i-lucide-compass"
-            class="size-4"
-          />
-          Browse by genre
-        </NuxtLink>
       </UContainer>
     </div>
 
